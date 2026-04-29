@@ -1,50 +1,1725 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles.css" rel="stylesheet">
-    <title>Final Project</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sudais | Digital Marketer & Guest Poster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ===== RESET & VARIABLES ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --gold: #c9a84c;
+      --gold2: #f0cc7a;
+      --cream: #f5f0e8;
+      --text: #e8e4dc;
+      --muted: #888880;
+      --card: #15151e;
+      --border: rgba(201,168,76,0.2);
+      --wa: #25D366;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transition: transform 0.15s ease;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transition: transform 0.4s ease, opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.06;
+      pointer-events: none; z-index: 0;
+    }
+
+    .nav__bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 60px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s, border-color 0.4s, padding 0.4s;
+    }
+    .nav__bar.scrolled {
+      background: rgba(10,10,15,0.95);
+      border-color: var(--border);
+      padding: 14px 60px;
+      backdrop-filter: blur(16px);
+    }
+    .nav__logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--gold); text-decoration: none;
+      letter-spacing: 2px;
+    }
+    .nav__bar ul { list-style: none; display: flex; gap: 40px; }
+    .nav__links {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase;
+      position: relative; transition: color 0.3s;
+    }
+    .nav__links::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav__links:hover { color: var(--gold); }
+    .nav__links:hover::after { width: 100%; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--gold); transition: 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+    #welcome-section {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 120px 60px 60px;
+      position: relative; overflow: hidden;
+    }
+    .hero__bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 60% 60% at 70% 40%, rgba(201,168,76,0.08) 0%, transparent 70%);
+    }
+    .hero__grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3; z-index: 0;
+    }
+    .hero__content { position: relative; z-index: 1; max-width: 700px; }
+    .hero__eyebrow {
+      font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 20px;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero__name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900; line-height: 0.95;
+      color: var(--cream); margin-bottom: 24px;
+      opacity: 0; animation: fadeUp 0.8s 0.4s forwards;
+    }
+    .hero__name span { color: var(--gold); }
+    .hero__sub {
+      font-size: 1.1rem; color: var(--muted); line-height: 1.8;
+      margin-bottom: 48px; max-width: 500px;
+      opacity: 0; animation: fadeUp 0.8s 0.6s forwards;
+    }
+    .hero__ctas {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
+    }
+    .btn {
+      padding: 14px 32px; border-radius: 2px;
+      font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; text-decoration: none; transition: all 0.3s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn--gold {
+      background: var(--gold); color: var(--bg); font-weight: 600;
+      border: 2px solid var(--gold);
+    }
+    .btn--gold:hover { background: var(--gold2); border-color: var(--gold2); transform: translateY(-2px); }
+    .btn--outline {
+      background: transparent; color: var(--gold); border: 2px solid var(--border);
+    }
+    .btn--outline:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .hero__scroll {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 0.7rem; letter-spacing: 2px;
+      animation: fadeIn 1s 1.5s both;
+    }
+    .hero__scroll .line {
+      width: 1px; height: 50px; background: var(--gold);
+      animation: scrollLine 2s 1.5s infinite;
+    }
+    @keyframes scrollLine {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      padding: 40px 20px; text-align: center;
+      border-right: 1px solid var(--border);
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .stat:last-child { border-right: none; }
+    .stat.visible { opacity: 1; transform: translateY(0); }
+    .stat__num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem; font-weight: 700;
+      color: var(--gold); display: block;
+    }
+    .stat__label { font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; }
+
+    #about {
+      padding: 120px 60px; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .about__img-wrap {
+      position: relative;
+      opacity: 0; transform: translateX(-40px);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+    .about__img-wrap.visible { opacity: 1; transform: translateX(0); }
+    .about__img-frame {
+      width: 100%; aspect-ratio: 3/4; background: var(--card);
+      border: 1px solid var(--border); position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about__img-frame::before {
+      content: 'S'; font-family: 'Playfair Display', serif;
+      font-size: 10rem; color: var(--gold); opacity: 0.08; font-weight: 900;
+    }
+    .about__img-frame::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(201,168,76,0.1));
+    }
+    .about__accent {
+      position: absolute; bottom: -20px; right: -20px;
+      width: 120px; height: 120px;
+      border: 2px solid var(--gold); z-index: -1;
+    }
+    .about__text { opacity: 0; transform: translateX(40px); transition: opacity 0.8s, transform 0.8s; }
+    .about__text.visible { opacity: 1; transform: translateX(0); }
+    .section__label {
+      font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px; display: block;
+    }
+    .section__title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
+      color: var(--cream); line-height: 1.1; margin-bottom: 24px;
+    }
+    .about__bio { color: var(--muted); line-height: 1.9; margin-bottom: 20px; }
+    .skills__grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+    .skill__tag {
+      padding: 6px 16px; border: 1px solid var(--border);
+      font-size: 0.75rem; color: var(--muted); letter-spacing: 1px;
+      background: var(--card); transition: all 0.3s;
+    }
+    .skill__tag:hover { border-color: var(--gold); color: var(--gold); }
+
+    #services { padding: 120px 60px; background: var(--bg2); }
+    .section__header { text-align: center; margin-bottom: 80px; }
+    .section__header .section__title { margin-bottom: 16px; }
+    .section__header p { color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.8; }
+    .services__grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+    .service__card {
+      background: var(--card); padding: 48px 36px;
+      border: 1px solid var(--border); cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      opacity: 0; transform: translateY(30px);
+    }
+    .service__card.visible { opacity: 1; transform: translateY(0); }
+    .service__card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .service__card:hover { border-color: var(--gold); transform: translateY(-4px); }
+    .service__card:hover::before { opacity: 1; }
+    .service__icon { font-size: 2.5rem; margin-bottom: 24px; display: block; transition: transform 0.4s; }
+    .service__card:hover .service__icon { transform: scale(1.1); }
+    .service__title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--cream); margin-bottom: 16px; }
+    .service__desc { color: var(--muted); line-height: 1.8; font-size: 0.9rem; }
+    .service__arrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 24px; color: var(--gold);
+      font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+      transition: gap 0.3s;
+    }
+    .service__card:hover .service__arrow { gap: 12px; }
+
+    #projects { padding: 120px 60px; }
+    .projects__grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; margin-top: 60px; }
+    .project__card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 40px; position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      opacity: 0; transform: translateY(30px);
+    }
+    .project__card.visible { opacity: 1; transform: translateY(0); }
+    .project__card:hover { border-color: var(--gold); transform: translateY(-4px); }
+    .project__tag { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: block; }
+    .project__title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--cream); margin-bottom: 16px; }
+    .project__desc { color: var(--muted); line-height: 1.8; font-size: 0.9rem; }
+    .project__result { margin-top: 20px; padding: 12px 16px; background: rgba(201,168,76,0.06); border-left: 2px solid var(--gold); color: var(--gold); font-size: 0.85rem; }
+
+    #testimonials { padding: 120px 60px; background: var(--bg2); }
+    .testimonials__grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 60px; }
+    .testimonial {
+      background: var(--card); padding: 40px; border: 1px solid var(--border);
+      position: relative; opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .testimonial.visible { opacity: 1; transform: translateY(0); }
+    .testimonial::before {
+      content: '"'; font-family: 'Playfair Display', serif;
+      font-size: 5rem; color: var(--gold); opacity: 0.15;
+      position: absolute; top: 10px; left: 20px; line-height: 1;
+    }
+    .testimonial__text { color: var(--muted); line-height: 1.8; margin-bottom: 24px; font-style: italic; }
+    .testimonial__author { display: flex; align-items: center; gap: 12px; }
+    .testimonial__avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; color: var(--bg); }
+    .testimonial__name { color: var(--cream); font-weight: 500; font-size: 0.9rem; }
+    .testimonial__role { color: var(--muted); font-size: 0.75rem; }
+    .stars { color: var(--gold); margin-bottom: 16px; font-size: 0.9rem; }
+
+    #process { padding: 120px 60px; }
+    .process__steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 60px; }
+    .process__step {
+      padding: 40px 30px; position: relative;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .process__step.visible { opacity: 1; transform: translateY(0); }
+    .process__step::after { content: '→'; position: absolute; top: 44px; right: -10px; color: var(--gold); font-size: 1.5rem; opacity: 0.5; }
+    .process__step:last-child::after { display: none; }
+    .process__num { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; color: var(--border); margin-bottom: 16px; line-height: 1; }
+    .process__title { color: var(--cream); font-weight: 500; margin-bottom: 10px; }
+    .process__desc { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+
+    #contact { padding: 120px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .contact__info { opacity: 0; transform: translateX(-30px); transition: opacity 0.8s, transform 0.8s; }
+    .contact__info.visible { opacity: 1; transform: translateX(0); }
+    .contact__links-list { list-style: none; margin-top: 40px; display: flex; flex-direction: column; gap: 16px; }
+    .contact__link-item a { display: flex; align-items: center; gap: 14px; color: var(--muted); text-decoration: none; transition: color 0.3s; font-size: 0.9rem; }
+    .contact__link-item a:hover { color: var(--gold); }
+    .contact__icon { width: 40px; height: 40px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: border-color 0.3s, background 0.3s; }
+    .contact__link-item a:hover .contact__icon { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .contact__form-wrap { opacity: 0; transform: translateX(30px); transition: opacity 0.8s, transform 0.8s; }
+    .contact__form-wrap.visible { opacity: 1; transform: translateX(0); }
+    .form__group { margin-bottom: 20px; }
+    .form__group label { display: block; font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .form__group input, .form__group textarea { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 14px 18px; font-family: inherit; font-size: 0.9rem; transition: border-color 0.3s; outline: none; }
+    .form__group input:focus, .form__group textarea:focus { border-color: var(--gold); }
+    .form__group textarea { height: 120px; resize: vertical; }
+
+    footer { padding: 40px 60px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .footer__logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); letter-spacing: 2px; }
+    .footer__text { color: var(--muted); font-size: 0.8rem; }
+    .footer__link { color: var(--gold); text-decoration: none; }
+    .footer__social { display: flex; gap: 16px; }
+    .footer__social a { width: 36px; height: 36px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: all 0.3s; }
+    .footer__social a:hover { border-color: var(--gold); color: var(--gold); }
+
+    .service-page {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg); overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.77,0,0.18,1);
+      padding: 80px 60px 60px;
+    }
+    .service-page.open { transform: translateX(0); }
+    .service-page__close { position: fixed; top: 30px; right: 40px; background: none; border: 1px solid var(--border); color: var(--muted); font-size: 1.2rem; cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 201; }
+    .service-page__close:hover { border-color: var(--gold); color: var(--gold); }
+    .sp__hero { max-width: 700px; margin-bottom: 60px; }
+    .sp__icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+    .sp__title { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; color: var(--cream); margin-bottom: 16px; }
+    .sp__sub { color: var(--muted); font-size: 1.05rem; line-height: 1.8; }
+    .sp__section { margin-bottom: 48px; }
+    .sp__section h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .sp__list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .sp__list li { display: flex; align-items: flex-start; gap: 12px; color: var(--muted); line-height: 1.7; }
+    .sp__list li::before { content: '◆'; color: var(--gold); font-size: 0.5rem; flex-shrink: 0; margin-top: 7px; }
+    .sp__grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
+    .sp__box { background: var(--card); border: 1px solid var(--border); padding: 28px; position: relative; overflow: hidden; }
+    .sp__box h4 { color: var(--cream); margin-bottom: 10px; font-size: 1rem; }
+    .sp__box p { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+    .sp__cta { background: var(--card); border: 1px solid var(--border); padding: 40px; text-align: center; margin-top: 60px; }
+    .sp__cta h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--cream); margin-bottom: 10px; }
+    .sp__cta p { color: var(--muted); margin-bottom: 30px; }
+    .sp__cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn--wa { background: var(--wa); color: #fff; border: 2px solid var(--wa); padding: 14px 32px; display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; transition: all 0.3s; cursor: pointer; }
+    .btn--wa:hover { background: #1ebe5b; border-color: #1ebe5b; transform: translateY(-2px); }
+    .btn--email { background: transparent; color: var(--gold); border: 2px solid var(--border); padding: 14px 32px; display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; transition: all 0.3s; cursor: pointer; }
+    .btn--email:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ===== ADMIN PANEL ===== */
+    #admin-section {
+      padding: 80px 60px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+    }
+
+    /* Animated background for admin */
+    .admin-bg {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    .admin-bg__word {
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      color: rgba(201,168,76,0.04);
+      white-space: nowrap;
+      animation: floatWord linear infinite;
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes floatWord {
+      0% { transform: translateY(100vh) rotate(-5deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-20vh) rotate(-5deg); opacity: 0; }
+    }
+    .admin-bg__circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.06);
+      animation: pulseCircle ease-in-out infinite;
+    }
+    @keyframes pulseCircle {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    .admin-bg__line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.12), transparent);
+      animation: sweepLine linear infinite;
+    }
+    @keyframes sweepLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .admin-bg__digit {
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      color: rgba(201,168,76,0.05);
+      animation: fadeDigit ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes fadeDigit {
+      0%, 100% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Login screen */
+    #admin-login {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 70vh;
+    }
+    .admin-login__box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 56px 48px;
+      width: 100%; max-width: 460px;
+      position: relative;
+      animation: fadeUp 0.6s 0.2s both;
+    }
+    .admin-login__box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .admin-login__icon {
+      font-size: 2.5rem; text-align: center; margin-bottom: 20px;
+      display: block;
+      animation: rotateIcon 6s ease-in-out infinite;
+    }
+    @keyframes rotateIcon {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-5deg) scale(1.05); }
+      75% { transform: rotate(5deg) scale(1.05); }
+    }
+    .admin-login__title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--cream); text-align: center;
+      margin-bottom: 6px;
+    }
+    .admin-login__sub {
+      color: var(--muted); font-size: 0.8rem;
+      text-align: center; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 36px;
+    }
+    .admin-form__group { margin-bottom: 20px; position: relative; }
+    .admin-form__group label {
+      display: block; font-size: 0.72rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .admin-form__input {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text); padding: 13px 18px;
+      font-family: inherit; font-size: 0.9rem;
+      outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .admin-form__input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(201,168,76,0.1);
+    }
+    .admin-login__error {
+      color: #e05; font-size: 0.8rem;
+      text-align: center; margin-bottom: 16px;
+      display: none; padding: 10px;
+      background: rgba(238,0,85,0.08);
+      border: 1px solid rgba(238,0,85,0.2);
+    }
+    .admin-login__error.show { display: block; animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    .admin-login__hint {
+      margin-top: 20px; text-align: center;
+      color: rgba(201,168,76,0.3); font-size: 0.72rem;
+      letter-spacing: 1px;
+    }
+    .btn--admin-login {
+      width: 100%; padding: 14px;
+      background: var(--gold); color: var(--bg);
+      border: none; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .btn--admin-login::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.4s;
+    }
+    .btn--admin-login:hover::after { transform: translateX(100%); }
+    .btn--admin-login:hover { background: var(--gold2); }
+
+    /* Admin Dashboard */
+    #admin-dashboard { position: relative; z-index: 2; display: none; }
+    #admin-dashboard.show { display: block; animation: fadeIn 0.5s ease; }
+
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 40px; padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-header__left { display: flex; align-items: center; gap: 16px; }
+    .admin-avatar {
+      width: 52px; height: 52px;
+      background: var(--gold); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--bg);
+      position: relative;
+    }
+    .admin-avatar::after {
+      content: '';
+      position: absolute; bottom: 2px; right: 2px;
+      width: 12px; height: 12px;
+      background: #25D366; border-radius: 50%;
+      border: 2px solid var(--card);
+    }
+    .admin-welcome { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
+    .admin-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--cream); }
+    .admin-logout {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); padding: 8px 20px;
+      font-family: inherit; font-size: 0.75rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.3s;
+    }
+    .admin-logout:hover { border-color: #e05; color: #e05; }
+
+    /* Admin Stats */
+    .admin-stats {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+      margin-bottom: 36px;
+    }
+    .admin-stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 24px; position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      opacity: 0; transform: translateY(20px);
+    }
+    .admin-stat-card.anim { opacity: 1; transform: translateY(0); transition: opacity 0.5s, transform 0.5s; }
+    .admin-stat-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .admin-stat-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gold); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.4s;
+    }
+    .admin-stat-card:hover::after { transform: scaleX(1); }
+    .asc__icon { font-size: 1.6rem; margin-bottom: 12px; display: block; }
+    .asc__val {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700; color: var(--gold);
+    }
+    .asc__label { color: var(--muted); font-size: 0.75rem; letter-spacing: 1px; margin-top: 4px; }
+    .asc__change { font-size: 0.72rem; color: #4caf73; margin-top: 8px; }
+
+    /* Admin Tabs */
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 1px solid var(--border); }
+    .admin-tab {
+      padding: 12px 24px; background: none; border: none;
+      font-family: inherit; font-size: 0.8rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.3s; position: relative;
+    }
+    .admin-tab::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 2px; background: var(--gold); transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .admin-tab.active { color: var(--gold); }
+    .admin-tab.active::after { transform: scaleX(1); }
+    .admin-tab:hover { color: var(--gold); }
+
+    /* Tab panels */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+    /* Messages Table */
+    .admin-table-wrap {
+      background: var(--card); border: 1px solid var(--border); overflow: hidden;
+    }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th {
+      padding: 14px 20px; text-align: left;
+      font-size: 0.7rem; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gold);
+      background: rgba(201,168,76,0.05);
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-table td {
+      padding: 14px 20px; color: var(--muted);
+      font-size: 0.85rem; border-bottom: 1px solid rgba(201,168,76,0.06);
+      transition: background 0.2s;
+    }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: rgba(201,168,76,0.03); }
+    .admin-table td strong { color: var(--text); }
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .badge--new { background: rgba(76,175,115,0.15); color: #4caf73; border: 1px solid rgba(76,175,115,0.3); }
+    .badge--read { background: rgba(136,136,128,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .badge--replied { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid var(--border); }
+
+    /* Services Management */
+    .admin-services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .admin-service-item {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 24px; transition: border-color 0.3s;
+    }
+    .admin-service-item:hover { border-color: var(--gold); }
+    .asi__top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .asi__icon { font-size: 1.8rem; }
+    .asi__toggle {
+      width: 38px; height: 20px; background: #4caf73;
+      border-radius: 10px; cursor: pointer; position: relative;
+      border: none; transition: background 0.3s;
+    }
+    .asi__toggle::after { content: ''; position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
+    .asi__toggle.off { background: var(--border); }
+    .asi__toggle.off::after { transform: translateX(-18px); }
+    .asi__name { color: var(--cream); font-weight: 500; font-size: 0.95rem; margin-bottom: 6px; }
+    .asi__stats { color: var(--muted); font-size: 0.78rem; }
+
+    /* Analytics */
+    .admin-analytics { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .admin-chart-box {
+      background: var(--card); border: 1px solid var(--border); padding: 28px;
+    }
+    .admin-chart-box h4 {
+      font-family: 'Playfair Display', serif;
+      color: var(--cream); margin-bottom: 20px; font-size: 1.1rem;
+    }
+    .chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .chart-bar {
+      width: 100%; background: rgba(201,168,76,0.15);
+      border-top: 2px solid var(--gold);
+      position: relative;
+      transition: height 1s cubic-bezier(0.34,1.56,0.64,1);
+      animation: barGrow 1.2s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes barGrow {
+      from { transform: scaleY(0); transform-origin: bottom; }
+      to { transform: scaleY(1); transform-origin: bottom; }
+    }
+    .chart-bar-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; }
+    .chart-bar-val { font-size: 0.7rem; color: var(--gold); }
+    .admin-pie-box { background: var(--card); border: 1px solid var(--border); padding: 28px; }
+    .admin-pie-box h4 { font-family: 'Playfair Display', serif; color: var(--cream); margin-bottom: 20px; font-size: 1.1rem; }
+    .traffic-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item { display: flex; flex-direction: column; gap: 6px; }
+    .traffic-item__top { display: flex; justify-content: space-between; font-size: 0.8rem; }
+    .traffic-item__label { color: var(--text); }
+    .traffic-item__val { color: var(--gold); }
+    .traffic-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .traffic-fill {
+      height: 100%; background: var(--gold); border-radius: 2px;
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 1.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .traffic-fill.anim { transform: scaleX(1); }
+
+    /* Profile Panel */
+    .admin-profile { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .admin-profile-card { background: var(--card); border: 1px solid var(--border); padding: 32px; }
+    .admin-profile-card h4 { font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); font-size: 1.1rem; }
+    .profile-field { margin-bottom: 18px; }
+    .profile-field label { display: block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .profile-field input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 11px 16px; font-family: inherit;
+      font-size: 0.88rem; outline: none; transition: border-color 0.3s;
+    }
+    .profile-field input:focus { border-color: var(--gold); }
+    .admin-save-btn {
+      background: var(--gold); color: var(--bg);
+      border: none; padding: 12px 28px;
+      font-family: inherit; font-size: 0.8rem;
+      font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.3s; margin-top: 8px;
+    }
+    .admin-save-btn:hover { background: var(--gold2); }
+
+    /* Inquiry form status indicator */
+    .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
+    .status-dot.green { background: #4caf73; }
+    .status-dot.gray { background: var(--muted); }
+
+    /* Notification toast */
+    #admin-toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--card); border: 1px solid var(--gold);
+      padding: 14px 24px; color: var(--cream);
+      font-size: 0.85rem; z-index: 9999;
+      display: none; animation: toastIn 0.4s ease;
+      border-left: 3px solid var(--gold);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typing animation for header */
+    .admin-typing {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700; color: var(--cream);
+      position: relative; z-index: 2;
+      text-align: center; margin-bottom: 12px;
+    }
+    .typing-cursor {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: var(--gold);
+      vertical-align: middle;
+      animation: blinkCursor 1s step-end infinite;
+      margin-left: 2px;
+    }
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .admin-section-label {
+      font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); display: block; text-align: center;
+      margin-bottom: 10px; position: relative; z-index: 2;
+    }
+
+    /* Floating images / icons in bg */
+    .admin-bg__img {
+      position: absolute;
+      border: 1px solid rgba(201,168,76,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      background: rgba(201,168,76,0.02);
+      animation: floatImg ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes floatImg {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+      50% { transform: translateY(-20px) rotate(3deg); opacity: 0.9; }
+    }
+
+    @media (max-width: 900px) {
+      .nav__bar { padding: 20px 24px; }
+      .nav__bar.scrolled { padding: 14px 24px; }
+      .nav__bar ul { display: none; flex-direction: column; gap: 20px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); justify-content: center; align-items: center; }
+      .nav__bar ul.open { display: flex; }
+      .nav__links { font-size: 1.2rem; }
+      .hamburger { display: flex; }
+      #welcome-section, #about, #contact { padding: 100px 24px 60px; }
+      #services, #projects, #testimonials, #process { padding: 80px 24px; }
+      footer { padding: 30px 24px; flex-direction: column; gap: 20px; text-align: center; }
+      .stats { grid-template-columns: repeat(2,1fr); }
+      #about, #contact { grid-template-columns: 1fr; gap: 40px; }
+      .services__grid, .projects__grid, .testimonials__grid, .process__steps { grid-template-columns: 1fr; }
+      .sp__grid { grid-template-columns: 1fr; }
+      .service-page { padding: 80px 24px 40px; }
+      #admin-section { padding: 60px 24px; }
+      .admin-stats { grid-template-columns: repeat(2,1fr); }
+      .admin-services-grid { grid-template-columns: 1fr 1fr; }
+      .admin-analytics { grid-template-columns: 1fr; }
+      .admin-profile { grid-template-columns: 1fr; }
+      .admin-login__box { padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <nav class="nav__bar" id="navbar">
-            <ul>
-                <li><a class="nav__links" href="#welcome-section">About</a></li>
-                <li><a class="nav__links" href="#projects">Work</a></li>
-                <li><a class="nav__links" href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
 
-        <section class="section__first" id="welcome-section">
-            <h1 class="section__h1">Hey I am sudais</h1>
-            <p class="section__p">a digital marketer and guest poster</p>
-        </section>
-    </header>
+<nav class="nav__bar" id="navbar">
+  <a href="#welcome-section" class="nav__logo">S.</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="nav-menu">
+    <li><a class="nav__links" href="#welcome-section">Home</a></li>
+    <li><a class="nav__links" href="#about">About</a></li>
+    <li><a class="nav__links" href="#services">Services</a></li>
+    <li><a class="nav__links" href="#projects">Work</a></li>
+    <li><a class="nav__links" href="#testimonials">Reviews</a></li>
+    <li><a class="nav__links" href="#contact">Contact</a></li>
+    <li><a class="nav__links" href="#admin-section">Admin</a></li>
+  </ul>
+</nav>
 
-    <main>
-        <section class="section__projects" id="projects">
-            <!-- Project tiles go here -->
-        </section>
-    </main>
+<section id="welcome-section">
+  <div class="hero__bg"></div>
+  <div class="hero__grid"></div>
+  <div class="hero__content">
+    <p class="hero__eyebrow">✦ Available for projects</p>
+    <h1 class="hero__name">Hey,<br>I am <span>Sudais</span></h1>
+    <p class="hero__sub">A passionate <strong>Digital Marketer</strong> & <strong>Guest Poster</strong> who crafts strategies that grow brands, drive traffic, and turn clicks into loyal customers.</p>
+    <div class="hero__ctas">
+      <a href="#services" class="btn btn--gold">Explore Services</a>
+      <a href="#contact" class="btn btn--outline">Let's Talk →</a>
+    </div>
+  </div>
+  <div class="hero__scroll">
+    <span>SCROLL</span>
+    <div class="line"></div>
+  </div>
+</section>
 
-    <section class="section__contact" id="contact">
-        <div class="contact__header">
-            <h2 class="contact__h2">Let's work together...</h2>
-            <p class="contact__p">How do you take your coffee?</p>
+<div class="stats">
+  <div class="stat"><span class="stat__num" data-count="50">0</span><span class="stat__label">Projects Delivered</span></div>
+  <div class="stat"><span class="stat__num" data-count="30">0</span><span class="stat__label">Happy Clients</span></div>
+  <div class="stat"><span class="stat__num" data-count="200">0</span><span class="stat__label">Guest Posts Published</span></div>
+  <div class="stat"><span class="stat__num" data-count="3">0</span><span class="stat__label">Years Experience</span></div>
+</div>
+
+<section id="about">
+  <div class="about__img-wrap">
+    <div class="about__img-frame"></div>
+    <div class="about__accent"></div>
+  </div>
+  <div class="about__text">
+    <span class="section__label">About Me</span>
+    <h2 class="section__title">Crafting Digital Narratives That Convert</h2>
+    <p class="about__bio">Hi, I'm Sudais — a results-driven digital marketer and skilled guest poster with a passion for helping businesses grow their online presence. I blend creativity with data-driven strategy to deliver campaigns that actually move the needle.</p>
+    <p class="about__bio">With 3+ years of experience across diverse niches — tech, e-commerce, health, and lifestyle — I understand what it takes to cut through the noise and build genuine audience connections.</p>
+    <p class="about__bio">Whether it's crafting SEO-optimized content, building high-authority backlinks through guest posting, managing social media accounts, or running targeted ad campaigns — I'm dedicated to getting measurable results.</p>
+    <div class="skills__grid">
+      <span class="skill__tag">SEO Strategy</span>
+      <span class="skill__tag">Content Marketing</span>
+      <span class="skill__tag">Guest Posting</span>
+      <span class="skill__tag">Social Media</span>
+      <span class="skill__tag">Google Ads</span>
+      <span class="skill__tag">Email Marketing</span>
+      <span class="skill__tag">Link Building</span>
+      <span class="skill__tag">Analytics</span>
+      <span class="skill__tag">Copywriting</span>
+      <span class="skill__tag">Brand Strategy</span>
+    </div>
+    <div style="margin-top:36px;">
+      <a href="#contact" class="btn btn--gold">Work With Me</a>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="section__header">
+    <span class="section__label">What I Do</span>
+    <h2 class="section__title">Services Built for Growth</h2>
+    <p>Every service is tailored to your unique goals. No cookie-cutter approaches — just strategies that deliver real, measurable results.</p>
+  </div>
+  <div class="services__grid">
+    <div class="service__card" onclick="openService('digital-marketing')">
+      <span class="service__icon">📈</span>
+      <h3 class="service__title">Digital Marketing</h3>
+      <p class="service__desc">Full-funnel digital marketing strategies that grow your audience, generate leads, and boost your revenue across all channels.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+    <div class="service__card" onclick="openService('guest-posting')">
+      <span class="service__icon">✍️</span>
+      <h3 class="service__title">Guest Posting</h3>
+      <p class="service__desc">High-authority guest posts on niche-relevant websites that build your backlink profile, brand credibility, and organic traffic.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+    <div class="service__card" onclick="openService('seo')">
+      <span class="service__icon">🔍</span>
+      <h3 class="service__title">SEO Optimization</h3>
+      <p class="service__desc">Technical SEO, on-page optimization, and content strategies that push your pages to the top of search engine results.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+    <div class="service__card" onclick="openService('social-media')">
+      <span class="service__icon">📱</span>
+      <h3 class="service__title">Social Media Marketing</h3>
+      <p class="service__desc">Strategic social media management across platforms to build your community, increase engagement, and drive conversions.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+    <div class="service__card" onclick="openService('content-marketing')">
+      <span class="service__icon">📝</span>
+      <h3 class="service__title">Content Marketing</h3>
+      <p class="service__desc">Compelling, SEO-rich content that educates your audience, builds trust, and positions you as an authority in your niche.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+    <div class="service__card" onclick="openService('email-marketing')">
+      <span class="service__icon">📧</span>
+      <h3 class="service__title">Email Marketing</h3>
+      <p class="service__desc">Automated email sequences and newsletters that nurture leads, re-engage customers, and drive repeat purchases.</p>
+      <span class="service__arrow">Learn More →</span>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section__header" style="text-align:left;">
+    <span class="section__label">Portfolio</span>
+    <h2 class="section__title">Selected Work</h2>
+  </div>
+  <div class="projects__grid">
+    <div class="project__card">
+      <span class="project__tag">SEO + Content</span>
+      <h3 class="project__title">E-Commerce Brand Growth</h3>
+      <p class="project__desc">Developed and executed a comprehensive SEO and content strategy for a fashion e-commerce brand, targeting high-intent keywords across product and blog pages.</p>
+      <div class="project__result">🚀 312% organic traffic increase in 6 months</div>
+    </div>
+    <div class="project__card">
+      <span class="project__tag">Guest Posting</span>
+      <h3 class="project__title">SaaS Authority Building</h3>
+      <p class="project__desc">Built a guest posting campaign across 40+ DR 60+ tech publications, securing high-quality backlinks and increasing domain authority significantly.</p>
+      <div class="project__result">🔗 DA increased from 18 to 42 in 4 months</div>
+    </div>
+    <div class="project__card">
+      <span class="project__tag">Social Media</span>
+      <h3 class="project__title">Health & Wellness Brand</h3>
+      <p class="project__desc">Managed Instagram and Facebook presence for a wellness brand — content creation, community management, and paid social campaigns.</p>
+      <div class="project__result">📊 10K → 45K followers in 3 months</div>
+    </div>
+    <div class="project__card">
+      <span class="project__tag">Email Marketing</span>
+      <h3 class="project__title">Local Business Automation</h3>
+      <p class="project__desc">Built a complete email marketing funnel including welcome sequences, abandoned cart flows, and win-back campaigns for a local service business.</p>
+      <div class="project__result">💰 35% increase in repeat customer revenue</div>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="section__header">
+    <span class="section__label">How I Work</span>
+    <h2 class="section__title">My Process</h2>
+  </div>
+  <div class="process__steps">
+    <div class="process__step">
+      <div class="process__num">01</div>
+      <h4 class="process__title">Discovery Call</h4>
+      <p class="process__desc">We start with a free consultation to understand your goals, target audience, current challenges, and budget.</p>
+    </div>
+    <div class="process__step">
+      <div class="process__num">02</div>
+      <h4 class="process__title">Strategy Design</h4>
+      <p class="process__desc">I craft a tailored action plan with clear milestones, deliverables, and KPIs aligned to your business objectives.</p>
+    </div>
+    <div class="process__step">
+      <div class="process__num">03</div>
+      <h4 class="process__title">Execution</h4>
+      <p class="process__desc">I implement the strategy with precision — creating content, building links, running campaigns, and optimizing constantly.</p>
+    </div>
+    <div class="process__step">
+      <div class="process__num">04</div>
+      <h4 class="process__title">Report & Grow</h4>
+      <p class="process__desc">Monthly performance reports with insights, learnings, and an evolving roadmap to keep compounding your results.</p>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="section__header">
+    <span class="section__label">Client Reviews</span>
+    <h2 class="section__title">What Clients Say</h2>
+  </div>
+  <div class="testimonials__grid">
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial__text">Sudais transformed our SEO completely. Our organic traffic tripled in just 5 months. His work is thorough, professional, and the results speak for themselves.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar">A</div>
+        <div><div class="testimonial__name">Ahmed K.</div><div class="testimonial__role">E-Commerce Owner</div></div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial__text">The guest posting service is exceptional. He secured placements on sites I couldn't imagine reaching. Our domain authority went up dramatically.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar">S</div>
+        <div><div class="testimonial__name">Sara M.</div><div class="testimonial__role">SaaS Founder</div></div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial__text">Our Instagram went from 8K to 50K followers in 4 months. Not just numbers — real, engaged people who actually buy. Sudais delivers results.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar">R</div>
+        <div><div class="testimonial__name">Rania F.</div><div class="testimonial__role">Wellness Brand Owner</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact__info">
+    <span class="section__label">Get In Touch</span>
+    <h2 class="section__title">Let's Work Together</h2>
+    <p style="color:var(--muted);line-height:1.8;margin-bottom:16px;">Ready to grow your brand? Whether you need a full marketing strategy or a single powerful guest post — I'm here to help. Let's talk.</p>
+    <ul class="contact__links-list">
+      <li class="contact__link-item"><a href="https://wa.me/923001234567" target="_blank"><span class="contact__icon">💬</span>WhatsApp: +92 300 1234567</a></li>
+      <li class="contact__link-item"><a href="mailto:sudais@example.com"><span class="contact__icon">✉️</span>sudais@example.com</a></li>
+      <li class="contact__link-item"><a href="https://www.facebook.com/" target="_blank"><span class="contact__icon">f</span>Facebook</a></li>
+      <li class="contact__link-item"><a href="https://twitter.com/" target="_blank"><span class="contact__icon">𝕏</span>Twitter / X</a></li>
+      <li class="contact__link-item"><a href="https://linkedin.com/" target="_blank"><span class="contact__icon">in</span>LinkedIn</a></li>
+    </ul>
+  </div>
+  <div class="contact__form-wrap">
+    <div class="form__group"><label>Your Name</label><input type="text" placeholder="John Doe" /></div>
+    <div class="form__group"><label>Email Address</label><input type="email" placeholder="john@example.com" /></div>
+    <div class="form__group"><label>Service Needed</label><input type="text" placeholder="e.g. SEO, Guest Posting..." /></div>
+    <div class="form__group"><label>Message</label><textarea placeholder="Tell me about your project..."></textarea></div>
+    <button class="btn btn--gold" style="width:100%;justify-content:center;" onclick="alert('Message sent! I\'ll reply within 24 hours.')">Send Message →</button>
+  </div>
+</section>
+
+<footer>
+  <div class="footer__logo">S.</div>
+  <p class="footer__text">&copy; 2025 Sudais. Built with passion. All rights reserved.</p>
+  <div class="footer__social">
+    <a href="https://www.facebook.com/" target="_blank">f</a>
+    <a href="https://twitter.com/" target="_blank">𝕏</a>
+    <a href="https://linkedin.com/" target="_blank">in</a>
+    <a href="https://wa.me/923001234567" target="_blank">💬</a>
+  </div>
+</footer>
+
+<!-- ===== ADMIN PANEL SECTION ===== -->
+<section id="admin-section">
+  <!-- Animated Background -->
+  <div class="admin-bg" id="adminBg"></div>
+
+  <!-- Section Header -->
+  <span class="admin-section-label">Secure Access</span>
+  <div class="admin-typing" id="adminTyping"><span class="typing-cursor"></span></div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="admin-login">
+    <div class="admin-login__box">
+      <span class="admin-login__icon">🛡️</span>
+      <h2 class="admin-login__title">Admin Panel</h2>
+      <p class="admin-login__sub">Authorized Access Only</p>
+
+      <div class="admin-form__group">
+        <label>Username</label>
+        <input class="admin-form__input" type="text" id="admin-user" placeholder="Enter username" autocomplete="off" />
+      </div>
+      <div class="admin-form__group">
+        <label>Password</label>
+        <input class="admin-form__input" type="password" id="admin-pass" placeholder="Enter password" autocomplete="off" />
+      </div>
+      <div class="admin-login__error" id="admin-error">⚠ Invalid credentials. Please try again.</div>
+      <button class="btn--admin-login" onclick="adminLogin()">Access Dashboard →</button>
+      <p class="admin-login__hint">🔐 Secured with end-to-end encryption</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="admin-dashboard">
+    <!-- Header -->
+    <div class="admin-header">
+      <div class="admin-header__left">
+        <div class="admin-avatar">S</div>
+        <div>
+          <div class="admin-welcome">Welcome back,</div>
+          <div class="admin-name">Sudais</div>
         </div>
-        <div class="contact__links">
-            <a href="https://www.facebook.com/freecodecamp" class="profile-link" target="_blank">Facebook</a>
-            <a href="https://github.com/freecodecamp" class="profile-link" target="_blank">Github</a>
-            <a href="https://twitter.com/freecodecamp" class="profile-link" target="_blank">Twitter</a>
-            <a href="mailto:example@example.com" class="profile-link" target="_blank">Send an Email</a>
-            <a href="tel:555-555-5555" class="profile-link" target="_blank">Call me</a>
-        </div>
-    </section>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span style="color:var(--muted);font-size:0.75rem;letter-spacing:1px;" id="admin-time"></span>
+        <button class="admin-logout" onclick="adminLogout()">⬅ Logout</button>
+      </div>
+    </div>
 
-    <footer class="footer">
-        <p class="wrap inline">&copy; Created for <a class="footer__link" href="https://freecodecamp.org/">freeCodeCamp</a></p>
-    </footer>
+    <!-- Stats Row -->
+    <div class="admin-stats" id="adminStats">
+      <div class="admin-stat-card">
+        <span class="asc__icon">📨</span>
+        <div class="asc__val" id="sc1">0</div>
+        <div class="asc__label">Total Inquiries</div>
+        <div class="asc__change">↑ +12% this month</div>
+      </div>
+      <div class="admin-stat-card">
+        <span class="asc__icon">👁️</span>
+        <div class="asc__val" id="sc2">0</div>
+        <div class="asc__label">Page Views</div>
+        <div class="asc__change">↑ +28% this month</div>
+      </div>
+      <div class="admin-stat-card">
+        <span class="asc__icon">🤝</span>
+        <div class="asc__val" id="sc3">0</div>
+        <div class="asc__label">Active Clients</div>
+        <div class="asc__change">↑ +3 new this week</div>
+      </div>
+      <div class="admin-stat-card">
+        <span class="asc__icon">⭐</span>
+        <div class="asc__val" id="sc4">0</div>
+        <div class="asc__label">Avg. Rating</div>
+        <div class="asc__change">↑ 100% satisfaction</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('messages',this)">📨 Inquiries</button>
+      <button class="admin-tab" onclick="switchTab('services-mgmt',this)">⚙️ Services</button>
+      <button class="admin-tab" onclick="switchTab('analytics',this)">📊 Analytics</button>
+      <button class="admin-tab" onclick="switchTab('profile',this)">👤 Profile</button>
+    </div>
+
+    <!-- TAB: Inquiries -->
+    <div class="admin-panel active" id="tab-messages">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h4 style="font-family:'Playfair Display',serif;color:var(--cream);font-size:1.1rem;">Recent Inquiries</h4>
+        <span style="font-size:0.75rem;color:var(--muted);">Showing 5 of 24 messages</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Service</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#024</td>
+              <td><strong>Ahmed Al-Rashid</strong></td>
+              <td>ahmed@techco.sa</td>
+              <td>SEO Optimization</td>
+              <td>Apr 28, 2025</td>
+              <td><span class="badge badge--new"><span class="status-dot green"></span>New</span></td>
+            </tr>
+            <tr>
+              <td>#023</td>
+              <td><strong>Sara Mitchell</strong></td>
+              <td>sara@saasapp.io</td>
+              <td>Guest Posting</td>
+              <td>Apr 26, 2025</td>
+              <td><span class="badge badge--replied"><span class="status-dot" style="background:var(--gold)"></span>Replied</span></td>
+            </tr>
+            <tr>
+              <td>#022</td>
+              <td><strong>Rania Farouq</strong></td>
+              <td>rania@wellness.ae</td>
+              <td>Social Media</td>
+              <td>Apr 24, 2025</td>
+              <td><span class="badge badge--replied"><span class="status-dot" style="background:var(--gold)"></span>Replied</span></td>
+            </tr>
+            <tr>
+              <td>#021</td>
+              <td><strong>James Thornton</strong></td>
+              <td>james@ecom.uk</td>
+              <td>Content Marketing</td>
+              <td>Apr 22, 2025</td>
+              <td><span class="badge badge--read"><span class="status-dot gray"></span>Read</span></td>
+            </tr>
+            <tr>
+              <td>#020</td>
+              <td><strong>Nadia Hassan</strong></td>
+              <td>nadia@brand.pk</td>
+              <td>Email Marketing</td>
+              <td>Apr 20, 2025</td>
+              <td><span class="badge badge--replied"><span class="status-dot" style="background:var(--gold)"></span>Replied</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <button class="admin-save-btn" onclick="showToast('✓ All marked as read')">Mark All Read</button>
+        <button class="admin-save-btn" style="background:transparent;color:var(--gold);border:1px solid var(--border);" onclick="showToast('📥 Export started...')">Export CSV</button>
+      </div>
+    </div>
+
+    <!-- TAB: Services Management -->
+    <div class="admin-panel" id="tab-services-mgmt">
+      <div style="margin-bottom:20px;">
+        <h4 style="font-family:'Playfair Display',serif;color:var(--cream);font-size:1.1rem;margin-bottom:6px;">Service Management</h4>
+        <p style="color:var(--muted);font-size:0.82rem;">Toggle services on/off, track views and inquiries per service.</p>
+      </div>
+      <div class="admin-services-grid">
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">📈</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">Digital Marketing</div>
+          <div class="asi__stats">👁 142 views &nbsp;|&nbsp; 📨 8 inquiries</div>
+        </div>
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">✍️</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">Guest Posting</div>
+          <div class="asi__stats">👁 198 views &nbsp;|&nbsp; 📨 12 inquiries</div>
+        </div>
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">🔍</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">SEO Optimization</div>
+          <div class="asi__stats">👁 231 views &nbsp;|&nbsp; 📨 15 inquiries</div>
+        </div>
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">📱</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">Social Media</div>
+          <div class="asi__stats">👁 176 views &nbsp;|&nbsp; 📨 9 inquiries</div>
+        </div>
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">📝</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">Content Marketing</div>
+          <div class="asi__stats">👁 121 views &nbsp;|&nbsp; 📨 7 inquiries</div>
+        </div>
+        <div class="admin-service-item">
+          <div class="asi__top">
+            <span class="asi__icon">📧</span>
+            <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+          </div>
+          <div class="asi__name">Email Marketing</div>
+          <div class="asi__stats">👁 94 views &nbsp;|&nbsp; 📨 5 inquiries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Analytics -->
+    <div class="admin-panel" id="tab-analytics">
+      <div class="admin-analytics">
+        <div class="admin-chart-box">
+          <h4>Monthly Traffic (2025)</h4>
+          <div class="chart-bars" id="chartBars">
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-val">1.2k</div>
+              <div class="chart-bar" style="height:48px;animation-delay:0s"></div>
+              <div class="chart-bar-label">JAN</div>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-val">1.8k</div>
+              <div class="chart-bar" style="height:72px;animation-delay:0.1s"></div>
+              <div class="chart-bar-label">FEB</div>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-val">2.1k</div>
+              <div class="chart-bar" style="height:84px;animation-delay:0.2s"></div>
+              <div class="chart-bar-label">MAR</div>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-val">1.9k</div>
+              <div class="chart-bar" style="height:76px;animation-delay:0.3s"></div>
+              <div class="chart-bar-label">APR</div>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-val">3.4k</div>
+              <div class="chart-bar" style="height:100%;animation-delay:0.4s;background:rgba(201,168,76,0.25)"></div>
+              <div class="chart-bar-label">MAY*</div>
+            </div>
+          </div>
+        </div>
+        <div class="admin-pie-box">
+          <h4>Traffic Sources</h4>
+          <ul class="traffic-list">
+            <li class="traffic-item">
+              <div class="traffic-item__top"><span class="traffic-item__label">Organic Search</span><span class="traffic-item__val">42%</span></div>
+              <div class="traffic-bar"><div class="traffic-fill" style="--w:0.42"></div></div>
+            </li>
+            <li class="traffic-item">
+              <div class="traffic-item__top"><span class="traffic-item__label">Social Media</span><span class="traffic-item__val">28%</span></div>
+              <div class="traffic-bar"><div class="traffic-fill" style="--w:0.28"></div></div>
+            </li>
+            <li class="traffic-item">
+              <div class="traffic-item__top"><span class="traffic-item__label">Direct</span><span class="traffic-item__val">18%</span></div>
+              <div class="traffic-bar"><div class="traffic-fill" style="--w:0.18"></div></div>
+            </li>
+            <li class="traffic-item">
+              <div class="traffic-item__top"><span class="traffic-item__label">Referral</span><span class="traffic-item__val">12%</span></div>
+              <div class="traffic-bar"><div class="traffic-fill" style="--w:0.12"></div></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;background:var(--card);border:1px solid var(--border);padding:28px;">
+        <h4 style="font-family:'Playfair Display',serif;color:var(--cream);margin-bottom:20px;font-size:1.1rem;">Top Performing Pages</h4>
+        <table class="admin-table" style="margin:0;">
+          <thead>
+            <tr><th>Page</th><th>Views</th><th>Bounce Rate</th><th>Avg. Time</th><th>Conversions</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>/services/seo</strong></td><td>2,341</td><td>28%</td><td>3m 42s</td><td><span class="badge badge--new">High</span></td></tr>
+            <tr><td><strong>/services/guest-posting</strong></td><td>1,982</td><td>31%</td><td>4m 10s</td><td><span class="badge badge--new">High</span></td></tr>
+            <tr><td><strong>/about</strong></td><td>1,540</td><td>42%</td><td>2m 15s</td><td><span class="badge badge--replied">Med</span></td></tr>
+            <tr><td><strong>/contact</strong></td><td>1,124</td><td>22%</td><td>1m 58s</td><td><span class="badge badge--new">High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: Profile -->
+    <div class="admin-panel" id="tab-profile">
+      <div class="admin-profile">
+        <div class="admin-profile-card">
+          <h4>Personal Information</h4>
+          <div class="profile-field">
+            <label>Full Name</label>
+            <input type="text" value="Sudais" />
+          </div>
+          <div class="profile-field">
+            <label>Email</label>
+            <input type="email" value="sudais@example.com" />
+          </div>
+          <div class="profile-field">
+            <label>Phone / WhatsApp</label>
+            <input type="text" value="+92 300 1234567" />
+          </div>
+          <div class="profile-field">
+            <label>Location</label>
+            <input type="text" value="Pakistan" />
+          </div>
+          <button class="admin-save-btn" onclick="showToast('✓ Profile saved successfully!')">Save Changes</button>
+        </div>
+        <div class="admin-profile-card">
+          <h4>Account Security</h4>
+          <div class="profile-field">
+            <label>Username</label>
+            <input type="text" value="sudais" />
+          </div>
+          <div class="profile-field">
+            <label>Current Password</label>
+            <input type="password" value="munara01" />
+          </div>
+          <div class="profile-field">
+            <label>New Password</label>
+            <input type="password" placeholder="Enter new password" />
+          </div>
+          <div class="profile-field">
+            <label>Confirm New Password</label>
+            <input type="password" placeholder="Confirm new password" />
+          </div>
+          <button class="admin-save-btn" onclick="showToast('✓ Password updated!')">Update Password</button>
+        </div>
+        <div class="admin-profile-card" style="grid-column:1/-1;">
+          <h4>Portfolio Settings</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="profile-field"><label>Site Title</label><input type="text" value="Sudais | Digital Marketer & Guest Poster" /></div>
+            <div class="profile-field"><label>Tagline</label><input type="text" value="Crafting Digital Narratives That Convert" /></div>
+            <div class="profile-field"><label>Facebook URL</label><input type="text" value="https://facebook.com/" /></div>
+            <div class="profile-field"><label>LinkedIn URL</label><input type="text" value="https://linkedin.com/" /></div>
+            <div class="profile-field"><label>Twitter / X URL</label><input type="text" value="https://twitter.com/" /></div>
+            <div class="profile-field"><label>WhatsApp Number</label><input type="text" value="+923001234567" /></div>
+          </div>
+          <button class="admin-save-btn" onclick="showToast('✓ Settings saved!')">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Toast -->
+<div id="admin-toast"></div>
+
+<!-- ===== SERVICE PAGES ===== -->
+<div class="service-page" id="sp-digital-marketing">
+  <button class="service-page__close" onclick="closeService('digital-marketing')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">📈</span><h1 class="sp__title">Digital Marketing</h1><p class="sp__sub">End-to-end digital marketing solutions that generate real, measurable results.</p></div>
+  <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Comprehensive digital marketing audit</li><li>Custom strategy tailored to your industry</li><li>Multi-channel campaign setup</li><li>PPC campaign management</li><li>Landing page strategy and CRO</li><li>Monthly analytics reports</li><li>Competitor analysis</li><li>Lead generation funnel design</li></ul></div>
+  <div class="sp__section"><h3>Why Digital Marketing Matters</h3><div class="sp__grid"><div class="sp__box"><h4>Targeted Reach</h4><p>Reach exactly the right people at the right time with precision targeting.</p></div><div class="sp__box"><h4>Measurable ROI</h4><p>Every campaign is tracked. You see exactly where your money is going.</p></div><div class="sp__box"><h4>Scalable Growth</h4><p>Start small, prove results, then scale without massive upfront costs.</p></div><div class="sp__box"><h4>Brand Awareness</h4><p>Build lasting brand recognition that keeps you top-of-mind.</p></div></div></div>
+  <div class="sp__cta"><h3>Ready to Grow?</h3><p>Let's create a strategy that actually moves the needle.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Digital%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Digital%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<div class="service-page" id="sp-guest-posting">
+  <button class="service-page__close" onclick="closeService('guest-posting')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">✍️</span><h1 class="sp__title">Guest Posting</h1><p class="sp__sub">High-quality guest posts on authoritative, niche-relevant websites to build your backlink profile.</p></div>
+  <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Manual outreach to high-DA niche websites</li><li>Professionally written SEO-optimized content</li><li>Natural contextual backlink placement</li><li>Real editorial websites — no PBNs</li><li>Permanent do-follow links guaranteed</li><li>Full placement report with metrics</li><li>Anchor text strategy consultation</li><li>7–14 business day turnaround</li></ul></div>
+  <div class="sp__section"><h3>Why Guest Posting Works</h3><div class="sp__grid"><div class="sp__box"><h4>Authority Building</h4><p>Links from high-authority domains signal trust to Google.</p></div><div class="sp__box"><h4>Referral Traffic</h4><p>Well-placed posts drive real readers already interested in your topic.</p></div><div class="sp__box"><h4>Brand Credibility</h4><p>Being featured on respected publications builds audience trust.</p></div><div class="sp__box"><h4>Long-Term SEO Value</h4><p>Guest post links provide compounding SEO benefits over time.</p></div></div></div>
+  <div class="sp__cta"><h3>Build Your Backlink Profile Today</h3><p>Let me place powerful guest posts that elevate your SEO permanently.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Guest%20Posting%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Guest%20Posting%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<div class="service-page" id="sp-seo">
+  <button class="service-page__close" onclick="closeService('seo')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">🔍</span><h1 class="sp__title">SEO Optimization</h1><p class="sp__sub">Dominate search engine results with a comprehensive SEO strategy built on technical excellence.</p></div>
+  <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Full technical SEO audit</li><li>Keyword research and opportunity mapping</li><li>On-page optimization</li><li>Content gap analysis</li><li>Off-page SEO and link building</li><li>Local SEO setup</li><li>Competitor reverse-engineering</li><li>Monthly SEO reporting</li></ul></div>
+  <div class="sp__section"><h3>SEO Pillars</h3><div class="sp__grid"><div class="sp__box"><h4>Technical SEO</h4><p>Fix crawl errors, improve speed, implement schema markup.</p></div><div class="sp__box"><h4>On-Page SEO</h4><p>Optimize every page element for maximum ranking potential.</p></div><div class="sp__box"><h4>Content SEO</h4><p>Create content that earns featured snippets and top rankings.</p></div><div class="sp__box"><h4>Off-Page SEO</h4><p>Build a powerful backlink profile through white-hat strategies.</p></div></div></div>
+  <div class="sp__cta"><h3>Rank Higher, Get More Customers</h3><p>Let's build an SEO strategy that drives consistent organic growth.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20SEO%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=SEO%20Services%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<div class="service-page" id="sp-social-media">
+  <button class="service-page__close" onclick="closeService('social-media')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">📱</span><h1 class="sp__title">Social Media Marketing</h1><p class="sp__sub">Build a thriving social media presence that grows your audience and converts followers into customers.</p></div>
+  <div class="sp__section"><h3>Platforms I Manage</h3><ul class="sp__list"><li>Instagram — Reels, Stories, Posts, and Growth Strategy</li><li>Facebook — Pages, Groups, and Paid Advertising</li><li>Twitter / X — Content Strategy and Community Building</li><li>LinkedIn — B2B Content and Lead Generation</li><li>TikTok — Short-form Video Strategy and Growth</li><li>YouTube — Channel Growth and Video SEO</li></ul></div>
+  <div class="sp__section"><h3>What You Get</h3><div class="sp__grid"><div class="sp__box"><h4>Content Creation</h4><p>Professional graphics, captions, and video scripts for maximum engagement.</p></div><div class="sp__box"><h4>Scheduling & Posting</h4><p>Consistent posting schedule optimized for peak engagement times.</p></div><div class="sp__box"><h4>Community Management</h4><p>Active engagement with your audience — building genuine relationships.</p></div><div class="sp__box"><h4>Paid Social Ads</h4><p>Targeted advertising campaigns that drive measurable conversions.</p></div></div></div>
+  <div class="sp__cta"><h3>Transform Your Social Presence</h3><p>Let's build a social strategy that turns followers into customers.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Social%20Media%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Social%20Media%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<div class="service-page" id="sp-content-marketing">
+  <button class="service-page__close" onclick="closeService('content-marketing')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">📝</span><h1 class="sp__title">Content Marketing</h1><p class="sp__sub">Strategic, high-quality content that attracts your ideal audience and builds authority in your niche.</p></div>
+  <div class="sp__section"><h3>Content Types</h3><ul class="sp__list"><li>Long-form SEO blog posts and articles</li><li>Pillar pages and topic cluster strategies</li><li>Product descriptions and e-commerce copy</li><li>Website copy and landing page content</li><li>Infographics and visual content concepts</li><li>Case studies and white papers</li><li>Newsletter content and email copy</li><li>Social media content and captions</li></ul></div>
+  <div class="sp__section"><h3>My Philosophy</h3><div class="sp__grid"><div class="sp__box"><h4>Search Intent First</h4><p>Every piece matches what your audience is searching for.</p></div><div class="sp__box"><h4>E-E-A-T Optimized</h4><p>Content demonstrating Experience, Expertise, Authority, and Trust.</p></div><div class="sp__box"><h4>Conversion Focused</h4><p>Content that guides readers through your funnel toward action.</p></div><div class="sp__box"><h4>Evergreen & Scalable</h4><p>Content that compounds in value over time.</p></div></div></div>
+  <div class="sp__cta"><h3>Content That Converts</h3><p>Let's build a content strategy that positions you as the go-to authority.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Content%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Content%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<div class="service-page" id="sp-email-marketing">
+  <button class="service-page__close" onclick="closeService('email-marketing')">✕</button>
+  <div class="sp__hero"><span class="sp__icon">📧</span><h1 class="sp__title">Email Marketing</h1><p class="sp__sub">Build, nurture, and monetize your email list with strategic automation that generates revenue on autopilot.</p></div>
+  <div class="sp__section"><h3>What I Build</h3><ul class="sp__list"><li>Welcome sequences that make powerful first impressions</li><li>Lead nurturing drip campaigns</li><li>Abandoned cart recovery sequences</li><li>Win-back campaigns for inactive subscribers</li><li>Weekly/monthly newsletters</li><li>Product launch email sequences</li><li>Segmentation strategies for personalized messaging</li><li>A/B testing of subject lines and CTAs</li></ul></div>
+  <div class="sp__section"><h3>Why Email Dominates</h3><div class="sp__grid"><div class="sp__box"><h4>Highest ROI</h4><p>Email marketing delivers an average ROI of $36 for every $1 spent.</p></div><div class="sp__box"><h4>Owned Audience</h4><p>Unlike social media, you own your email list. No algorithm can touch it.</p></div><div class="sp__box"><h4>Automation</h4><p>Set up once and earn continuously. Works for you 24/7.</p></div><div class="sp__box"><h4>Deep Personalization</h4><p>Hyper-relevant messages that drive higher open and click rates.</p></div></div></div>
+  <div class="sp__cta"><h3>Unlock the Power of Email</h3><p>Let's turn your email list into a reliable revenue engine.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Email%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Email%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+</div>
+
+<script>
+  // ===== CURSOR =====
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => {
+    cursor.style.transform = `translate(${e.clientX - 5}px, ${e.clientY - 5}px)`;
+    ring.style.transform = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
+  });
+
+  // ===== NAV SCROLL =====
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ===== HAMBURGER =====
+  const hamburger = document.getElementById('hamburger');
+  const navMenu = document.getElementById('nav-menu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navMenu.classList.toggle('open');
+  });
+  navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    navMenu.classList.remove('open');
+  }));
+
+  // ===== INTERSECTION OBSERVER =====
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.stat, .about__img-wrap, .about__text, .service__card, .project__card, .testimonial, .process__step, .contact__info, .contact__form-wrap').forEach(el => observer.observe(el));
+
+  // ===== COUNTER =====
+  const counters = document.querySelectorAll('.stat__num[data-count]');
+  const countObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target, target = +el.dataset.count;
+        let current = 0;
+        const step = target / 50;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(timer); }
+          el.textContent = Math.floor(current) + '+';
+        }, 30);
+        countObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => countObserver.observe(c));
+
+  // ===== SERVICE PAGES =====
+  function openService(id) {
+    const page = document.getElementById('sp-' + id);
+    if (page) { page.classList.add('open'); document.body.style.overflow = 'hidden'; page.scrollTop = 0; }
+  }
+  function closeService(id) {
+    const page = document.getElementById('sp-' + id);
+    if (page) { page.classList.remove('open'); document.body.style.overflow = ''; }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.service-page.open').forEach(p => { p.classList.remove('open'); document.body.style.overflow = ''; });
+      if (document.getElementById('admin-dashboard').classList.contains('show')) return;
+    }
+  });
+
+  // ===== ADMIN ANIMATED BACKGROUND =====
+  (function buildAdminBg() {
+    const bg = document.getElementById('adminBg');
+    const words = ['SEO','GROWTH','TRAFFIC','CONTENT','LINKS','BRAND','LEADS','CLICKS','RANK','ROI','DIGITAL','MARKET'];
+    words.forEach((w, i) => {
+      const el = document.createElement('div');
+      el.className = 'admin-bg__word';
+      el.textContent = w;
+      el.style.left = (8 + i * 8) + '%';
+      el.style.fontSize = (60 + Math.random()*80) + 'px';
+      el.style.animationDuration = (18 + Math.random()*14) + 's';
+      el.style.animationDelay = (i * 1.5) + 's';
+      bg.appendChild(el);
+    });
+
+    // Circles
+    [200,340,480,150,260].forEach((size, i) => {
+      const c = document.createElement('div');
+      c.className = 'admin-bg__circle';
+      c.style.cssText = `width:${size}px;height:${size}px;top:${10+i*16}%;left:${5+i*20}%;animation-duration:${5+i*1.5}s;animation-delay:${i*0.8}s;`;
+      bg.appendChild(c);
+    });
+
+    // Floating icons
+    const icons = ['📈','✍️','🔍','📱','📝','📧','⭐','🎯','📊','🚀'];
+    icons.forEach((ic, i) => {
+      const el = document.createElement('div');
+      el.className = 'admin-bg__img';
+      const size = 60 + Math.random()*40;
+      el.style.cssText = `width:${size}px;height:${size}px;top:${5+i*9}%;right:${3+i*4}%;border-radius:8px;font-size:${size*0.45}px;animation-duration:${5+Math.random()*4}s;animation-delay:${i*0.7}s;`;
+      el.textContent = ic;
+      bg.appendChild(el);
+    });
+
+    // Sweep lines
+    [30,55,75].forEach((top, i) => {
+      const l = document.createElement('div');
+      l.className = 'admin-bg__line';
+      l.style.cssText = `top:${top}%;width:60%;left:20%;animation-duration:${8+i*3}s;animation-delay:${i*2}s;`;
+      bg.appendChild(l);
+    });
+
+    // Digits
+    '0123456789'.split('').forEach((d, i) => {
+      const el = document.createElement('div');
+      el.className = 'admin-bg__digit';
+      el.textContent = d;
+      el.style.cssText = `font-size:${80+Math.random()*60}px;top:${Math.random()*80}%;left:${Math.random()*80}%;animation-duration:${4+Math.random()*5}s;animation-delay:${i*0.6}s;`;
+      bg.appendChild(el);
+    });
+  })();
+
+  // ===== TYPING ANIMATION =====
+  (function typeHeader() {
+    const el = document.getElementById('adminTyping');
+    const phrases = ['Admin Dashboard', 'Manage Everything', 'Your Command Center', 'Control & Grow'];
+    let pi = 0, ci = 0, deleting = false;
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+
+    function type() {
+      const phrase = phrases[pi];
+      if (!deleting) {
+        el.textContent = phrase.slice(0, ci + 1);
+        el.appendChild(cursor);
+        ci++;
+        if (ci === phrase.length) { deleting = true; setTimeout(type, 2200); return; }
+      } else {
+        el.textContent = phrase.slice(0, ci - 1);
+        el.appendChild(cursor);
+        ci--;
+        if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(type, 400); return; }
+      }
+      setTimeout(type, deleting ? 60 : 90);
+    }
+    type();
+  })();
+
+  // ===== ADMIN LOGIN =====
+  function adminLogin() {
+    const u = document.getElementById('admin-user').value.trim();
+    const p = document.getElementById('admin-pass').value;
+    const err = document.getElementById('admin-error');
+
+    if (u === 'sudais' && p === 'munara01') {
+      document.getElementById('admin-login').style.display = 'none';
+      const dash = document.getElementById('admin-dashboard');
+      dash.classList.add('show');
+      animateAdminStats();
+      updateAdminTime();
+      setInterval(updateAdminTime, 1000);
+    } else {
+      err.classList.remove('show');
+      void err.offsetWidth;
+      err.classList.add('show');
+      document.getElementById('admin-pass').value = '';
+    }
+  }
+  document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+  document.getElementById('admin-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('admin-pass').focus(); });
+
+  function adminLogout() {
+    document.getElementById('admin-dashboard').classList.remove('show');
+    document.getElementById('admin-login').style.display = 'flex';
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pass').value = '';
+    document.getElementById('admin-error').classList.remove('show');
+  }
+
+  function updateAdminTime() {
+    const now = new Date();
+    document.getElementById('admin-time').textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+
+  function animateAdminStats() {
+    const stats = document.querySelectorAll('.admin-stat-card');
+    stats.forEach((s, i) => setTimeout(() => s.classList.add('anim'), i * 120));
+
+    const targets = [24, 4820, 8, 5.0];
+    const ids = ['sc1','sc2','sc3','sc4'];
+    const suffixes = ['', '', '', '★'];
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      let cur = 0;
+      const t = targets[i];
+      const step = t / 60;
+      const timer = setInterval(() => {
+        cur += step;
+        if (cur >= t) { cur = t; clearInterval(timer); }
+        el.textContent = (id === 'sc4') ? t.toFixed(1) + suffixes[i] : Math.floor(cur) + suffixes[i];
+      }, 25);
+    });
+
+    // Animate traffic bars
+    setTimeout(() => {
+      document.querySelectorAll('.traffic-fill').forEach(fill => {
+        const w = parseFloat(fill.style.getPropertyValue('--w'));
+        fill.style.transform = `scaleX(${w})`;
+        fill.classList.add('anim');
+      });
+    }, 600);
+  }
+
+  // ===== TABS =====
+  function switchTab(name, btn) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+
+    if (name === 'analytics') {
+      setTimeout(() => {
+        document.querySelectorAll('.traffic-fill').forEach(fill => {
+          const w = parseFloat(fill.style.getPropertyValue('--w'));
+          fill.style.transform = `scaleX(${w})`;
+        });
+      }, 100);
+    }
+  }
+
+  // ===== SERVICE TOGGLES =====
+  function toggleService(btn) {
+    btn.classList.toggle('off');
+    const name = btn.closest('.admin-service-item').querySelector('.asi__name').textContent;
+    const on = !btn.classList.contains('off');
+    showToast((on ? '✓ ' : '⏸ ') + name + (on ? ' enabled' : ' disabled'));
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const t = document.getElementById('admin-toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2800);
+  }
+</script>
 </body>
 </html>
