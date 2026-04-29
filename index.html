@@ -1233,9 +1233,12 @@
 
     <!-- TAB: Services Management -->
     <div class="admin-panel" id="tab-services-mgmt">
-      <div style="margin-bottom:20px;">
-        <h4 style="font-family:'Playfair Display',serif;color:var(--cream);font-size:1.1rem;margin-bottom:6px;">Service Management</h4>
-        <p style="color:var(--muted);font-size:0.82rem;">Toggle services on/off, track views and inquiries per service.</p>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h4 style="font-family:'Playfair Display',serif;color:var(--cream);font-size:1.1rem;margin-bottom:6px;">Service Management</h4>
+          <p style="color:var(--muted);font-size:0.82rem;">Toggle services on/off, track views and inquiries per service.</p>
+        </div>
+        <button class="admin-save-btn" style="margin-top:0;" onclick="openAddServiceModal()">+ Add Service</button>
       </div>
       <div class="admin-services-grid">
         <div class="admin-service-item">
@@ -1423,6 +1426,31 @@
 
 <!-- Toast -->
 <div id="admin-toast"></div>
+
+<!-- Add Service Modal -->
+<div id="add-service-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(10,10,15,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);padding:40px;width:100%;max-width:480px;position:relative;animation:fadeUp 0.3s ease both;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);"></div>
+    <h3 style="font-family:'Playfair Display',serif;color:var(--cream);font-size:1.4rem;margin-bottom:6px;">Add New Service</h3>
+    <p style="color:var(--muted);font-size:0.78rem;letter-spacing:1px;margin-bottom:28px;">Fill in the details below to add a new service card.</p>
+    <div class="admin-form__group">
+      <label style="display:block;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Icon (emoji)</label>
+      <input class="admin-form__input" type="text" id="new-svc-icon" placeholder="e.g. 🎯" maxlength="4" />
+    </div>
+    <div class="admin-form__group">
+      <label style="display:block;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Service Name</label>
+      <input class="admin-form__input" type="text" id="new-svc-name" placeholder="e.g. Video Marketing" />
+    </div>
+    <div class="admin-form__group" style="margin-bottom:24px;">
+      <label style="display:block;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Description</label>
+      <input class="admin-form__input" type="text" id="new-svc-desc" placeholder="Brief service description..." />
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button class="btn--admin-login" style="flex:1;" onclick="addNewService()">Add Service</button>
+      <button onclick="closeAddServiceModal()" style="flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);padding:14px;font-family:inherit;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== SERVICE PAGES ===== -->
 <div class="service-page" id="sp-digital-marketing">
@@ -1720,6 +1748,45 @@
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 2800);
   }
+  // ===== ADD SERVICE MODAL =====
+  function openAddServiceModal() {
+    const modal = document.getElementById('add-service-modal');
+    modal.style.display = 'flex';
+    document.getElementById('new-svc-icon').value = '';
+    document.getElementById('new-svc-name').value = '';
+    document.getElementById('new-svc-desc').value = '';
+    setTimeout(() => document.getElementById('new-svc-icon').focus(), 100);
+  }
+  function closeAddServiceModal() {
+    document.getElementById('add-service-modal').style.display = 'none';
+  }
+  function addNewService() {
+    const icon = document.getElementById('new-svc-icon').value.trim() || '🆕';
+    const name = document.getElementById('new-svc-name').value.trim();
+    const desc = document.getElementById('new-svc-desc').value.trim();
+    if (!name) { showToast('⚠ Please enter a service name'); return; }
+    const grid = document.querySelector('.admin-services-grid');
+    const item = document.createElement('div');
+    item.className = 'admin-service-item';
+    item.style.animation = 'fadeUp 0.4s ease both';
+    item.innerHTML = `
+      <div class="asi__top">
+        <span class="asi__icon">${icon}</span>
+        <button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button>
+      </div>
+      <div class="asi__name">${name}</div>
+      <div class="asi__stats">${desc || 'No description provided.'}</div>
+    `;
+    grid.appendChild(item);
+    closeAddServiceModal();
+    showToast('✓ "' + name + '" service added!');
+  }
+  document.getElementById('add-service-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddServiceModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('add-service-modal').style.display === 'flex') closeAddServiceModal();
+  });
 </script>
 </body>
 </html>
