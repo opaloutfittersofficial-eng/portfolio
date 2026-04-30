@@ -289,15 +289,14 @@
     @keyframes floatImg { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; } 50% { transform: translateY(-20px) rotate(3deg); opacity: 0.9; } }
 
     /* Photo upload styles */
-    .photo-upload-overlay {
-      position: absolute; inset: 0; z-index: 5;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(10,10,15,0.7);
-      opacity: 0; transition: opacity 0.3s; cursor: pointer;
-    }
+    .photo-upload-overlay { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; background: rgba(10,10,15,0.7); opacity: 0; transition: opacity 0.3s; cursor: pointer; }
     .about__img-frame:hover .photo-upload-overlay { opacity: 1; }
     .photo-upload-overlay span { color: var(--gold); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
     #photo-file-input { display: none; }
+
+    /* Saved indicator */
+    .saved-indicator { display: inline-block; margin-left: 8px; font-size: 0.7rem; color: #4caf73; opacity: 0; transition: opacity 0.4s; }
+    .saved-indicator.show { opacity: 1; }
 
     @media (max-width: 900px) {
       .nav__bar { padding: 20px 24px; }
@@ -374,7 +373,6 @@
     <div class="about__img-frame" id="about-img-frame">
       <span class="about__img-placeholder" id="about-placeholder">S</span>
       <img id="about-photo" src="" alt="Sudais" />
-      <!-- Photo upload overlay (always visible on hover) -->
       <div class="photo-upload-overlay" onclick="document.getElementById('photo-file-input').click()" title="Click to upload photo">
         <span>📷<br>Upload Photo</span>
       </div>
@@ -499,7 +497,6 @@
   <span class="admin-section-label">Secure Access</span>
   <div class="admin-typing" id="adminTyping"><span class="typing-cursor"></span></div>
 
-  <!-- LOGIN SCREEN -->
   <div id="admin-login">
     <div class="admin-login__box">
       <span class="admin-login__icon">🛡️</span>
@@ -519,7 +516,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
   <div id="admin-dashboard">
     <div class="admin-header">
       <div class="admin-header__left">
@@ -662,6 +658,12 @@
           <button class="admin-save-btn" onclick="saveSettings()">Save Settings</button>
         </div>
       </div>
+
+      <!-- Reset all data button -->
+      <div style="margin-top:24px;padding:20px;background:rgba(238,0,85,0.05);border:1px solid rgba(238,0,85,0.15);">
+        <p style="color:var(--muted);font-size:0.8rem;margin-bottom:12px;"><strong style="color:#e05;">⚠ Danger Zone:</strong> Reset all saved data back to defaults. This cannot be undone.</p>
+        <button onclick="resetAllData()" style="background:transparent;border:1px solid rgba(238,0,85,0.4);color:#e05;padding:10px 22px;font-family:inherit;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='rgba(238,0,85,0.1)'" onmouseout="this.style.background='transparent'">🗑 Reset All Data</button>
+      </div>
     </div>
 
     <!-- TAB: Photo -->
@@ -671,19 +673,17 @@
         <p style="color:var(--muted);font-size:0.82rem;margin-bottom:24px;line-height:1.7;">Upload a photo to display in the About Me section. The photo replaces the large "S" letter. Recommended: portrait orientation, at least 600×800px.</p>
 
         <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
-          <!-- Preview -->
           <div style="width:160px;aspect-ratio:3/4;background:var(--bg);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <span id="photo-tab-placeholder" style="font-family:'Playfair Display',serif;font-size:4rem;color:var(--gold);opacity:0.3;font-weight:900;">S</span>
             <img id="photo-tab-preview" src="" alt="Preview" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
             <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(10,10,15,0.7);padding:6px;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:1px;">PREVIEW</div>
           </div>
-          <!-- Upload controls -->
           <div style="flex:1;min-width:200px;">
             <label for="photo-tab-input" style="display:block;background:var(--gold);color:var(--bg);padding:12px 24px;font-size:0.8rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;transition:background 0.3s;margin-bottom:12px;" onmouseover="this.style.background='var(--gold2)'" onmouseout="this.style.background='var(--gold)'">
               📷 Choose Photo
             </label>
             <input type="file" id="photo-tab-input" accept="image/*" style="display:none;" onchange="handlePhotoTabUpload(event)" />
-            <p style="color:var(--muted);font-size:0.75rem;line-height:1.6;margin-bottom:16px;">Accepted: JPG, PNG, WebP<br>Max size: any (stored locally)</p>
+            <p style="color:var(--muted);font-size:0.75rem;line-height:1.6;margin-bottom:16px;">Accepted: JPG, PNG, WebP<br>Stored permanently in your browser</p>
             <button class="admin-save-btn" onclick="publishPhoto()" id="publish-photo-btn" style="opacity:0.4;cursor:not-allowed;" disabled>Publish Photo →</button>
             <div id="photo-published-msg" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(76,175,115,0.1);border:1px solid rgba(76,175,115,0.3);color:#4caf73;font-size:0.8rem;">✓ Photo published to About section!</div>
             <button id="remove-photo-btn" onclick="removePhoto()" style="display:none;margin-top:10px;background:transparent;border:1px solid rgba(238,0,85,0.3);color:#e05;padding:10px 20px;font-family:inherit;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;width:100%;" onmouseover="this.style.borderColor='#e05'" onmouseout="this.style.borderColor='rgba(238,0,85,0.3)'">Remove Photo</button>
@@ -723,7 +723,7 @@
   <div class="sp__hero"><span class="sp__icon">📈</span><h1 class="sp__title">Digital Marketing</h1><p class="sp__sub">End-to-end digital marketing solutions that generate real, measurable results.</p></div>
   <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Comprehensive digital marketing audit</li><li>Custom strategy tailored to your industry</li><li>Multi-channel campaign setup</li><li>PPC campaign management</li><li>Landing page strategy and CRO</li><li>Monthly analytics reports</li><li>Competitor analysis</li><li>Lead generation funnel design</li></ul></div>
   <div class="sp__section"><h3>Why Digital Marketing Matters</h3><div class="sp__grid"><div class="sp__box"><h4>Targeted Reach</h4><p>Reach exactly the right people at the right time with precision targeting.</p></div><div class="sp__box"><h4>Measurable ROI</h4><p>Every campaign is tracked. You see exactly where your money is going.</p></div><div class="sp__box"><h4>Scalable Growth</h4><p>Start small, prove results, then scale without massive upfront costs.</p></div><div class="sp__box"><h4>Brand Awareness</h4><p>Build lasting brand recognition that keeps you top-of-mind.</p></div></div></div>
-  <div class="sp__cta"><h3>Ready to Grow?</h3><p>Let's create a strategy that actually moves the needle.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Digital%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Digital%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Ready to Grow?</h3><p>Let's create a strategy that actually moves the needle.</p><div class="sp__cta-btns"><a id="sp-dm-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Digital%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-dm-email" href="mailto:sudais@example.com?subject=Digital%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <div class="service-page" id="sp-guest-posting">
@@ -731,7 +731,7 @@
   <div class="sp__hero"><span class="sp__icon">✍️</span><h1 class="sp__title">Guest Posting</h1><p class="sp__sub">High-quality guest posts on authoritative, niche-relevant websites to build your backlink profile.</p></div>
   <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Manual outreach to high-DA niche websites</li><li>Professionally written SEO-optimized content</li><li>Natural contextual backlink placement</li><li>Real editorial websites — no PBNs</li><li>Permanent do-follow links guaranteed</li><li>Full placement report with metrics</li><li>Anchor text strategy consultation</li><li>7–14 business day turnaround</li></ul></div>
   <div class="sp__section"><h3>Why Guest Posting Works</h3><div class="sp__grid"><div class="sp__box"><h4>Authority Building</h4><p>Links from high-authority domains signal trust to Google.</p></div><div class="sp__box"><h4>Referral Traffic</h4><p>Well-placed posts drive real readers already interested in your topic.</p></div><div class="sp__box"><h4>Brand Credibility</h4><p>Being featured on respected publications builds audience trust.</p></div><div class="sp__box"><h4>Long-Term SEO Value</h4><p>Guest post links provide compounding SEO benefits over time.</p></div></div></div>
-  <div class="sp__cta"><h3>Build Your Backlink Profile Today</h3><p>Let me place powerful guest posts that elevate your SEO permanently.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Guest%20Posting%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Guest%20Posting%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Build Your Backlink Profile Today</h3><p>Let me place powerful guest posts that elevate your SEO permanently.</p><div class="sp__cta-btns"><a id="sp-gp-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Guest%20Posting%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-gp-email" href="mailto:sudais@example.com?subject=Guest%20Posting%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <div class="service-page" id="sp-seo">
@@ -739,7 +739,7 @@
   <div class="sp__hero"><span class="sp__icon">🔍</span><h1 class="sp__title">SEO Optimization</h1><p class="sp__sub">Dominate search engine results with a comprehensive SEO strategy built on technical excellence.</p></div>
   <div class="sp__section"><h3>What's Included</h3><ul class="sp__list"><li>Full technical SEO audit</li><li>Keyword research and opportunity mapping</li><li>On-page optimization</li><li>Content gap analysis</li><li>Off-page SEO and link building</li><li>Local SEO setup</li><li>Competitor reverse-engineering</li><li>Monthly SEO reporting</li></ul></div>
   <div class="sp__section"><h3>SEO Pillars</h3><div class="sp__grid"><div class="sp__box"><h4>Technical SEO</h4><p>Fix crawl errors, improve speed, implement schema markup.</p></div><div class="sp__box"><h4>On-Page SEO</h4><p>Optimize every page element for maximum ranking potential.</p></div><div class="sp__box"><h4>Content SEO</h4><p>Create content that earns featured snippets and top rankings.</p></div><div class="sp__box"><h4>Off-Page SEO</h4><p>Build a powerful backlink profile through white-hat strategies.</p></div></div></div>
-  <div class="sp__cta"><h3>Rank Higher, Get More Customers</h3><p>Let's build an SEO strategy that drives consistent organic growth.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20SEO%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=SEO%20Services%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Rank Higher, Get More Customers</h3><p>Let's build an SEO strategy that drives consistent organic growth.</p><div class="sp__cta-btns"><a id="sp-seo-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20SEO%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-seo-email" href="mailto:sudais@example.com?subject=SEO%20Services%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <div class="service-page" id="sp-social-media">
@@ -747,7 +747,7 @@
   <div class="sp__hero"><span class="sp__icon">📱</span><h1 class="sp__title">Social Media Marketing</h1><p class="sp__sub">Build a thriving social media presence that grows your audience and converts followers into customers.</p></div>
   <div class="sp__section"><h3>Platforms I Manage</h3><ul class="sp__list"><li>Instagram — Reels, Stories, Posts, and Growth Strategy</li><li>Facebook — Pages, Groups, and Paid Advertising</li><li>Twitter / X — Content Strategy and Community Building</li><li>LinkedIn — B2B Content and Lead Generation</li><li>TikTok — Short-form Video Strategy and Growth</li><li>YouTube — Channel Growth and Video SEO</li></ul></div>
   <div class="sp__section"><h3>What You Get</h3><div class="sp__grid"><div class="sp__box"><h4>Content Creation</h4><p>Professional graphics, captions, and video scripts for maximum engagement.</p></div><div class="sp__box"><h4>Scheduling &amp; Posting</h4><p>Consistent posting schedule optimized for peak engagement times.</p></div><div class="sp__box"><h4>Community Management</h4><p>Active engagement with your audience — building genuine relationships.</p></div><div class="sp__box"><h4>Paid Social Ads</h4><p>Targeted advertising campaigns that drive measurable conversions.</p></div></div></div>
-  <div class="sp__cta"><h3>Transform Your Social Presence</h3><p>Let's build a social strategy that turns followers into customers.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Social%20Media%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Social%20Media%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Transform Your Social Presence</h3><p>Let's build a social strategy that turns followers into customers.</p><div class="sp__cta-btns"><a id="sp-sm-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Social%20Media%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-sm-email" href="mailto:sudais@example.com?subject=Social%20Media%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <div class="service-page" id="sp-content-marketing">
@@ -755,7 +755,7 @@
   <div class="sp__hero"><span class="sp__icon">📝</span><h1 class="sp__title">Content Marketing</h1><p class="sp__sub">Strategic, high-quality content that attracts your ideal audience and builds authority in your niche.</p></div>
   <div class="sp__section"><h3>Content Types</h3><ul class="sp__list"><li>Long-form SEO blog posts and articles</li><li>Pillar pages and topic cluster strategies</li><li>Product descriptions and e-commerce copy</li><li>Website copy and landing page content</li><li>Infographics and visual content concepts</li><li>Case studies and white papers</li><li>Newsletter content and email copy</li><li>Social media content and captions</li></ul></div>
   <div class="sp__section"><h3>My Philosophy</h3><div class="sp__grid"><div class="sp__box"><h4>Search Intent First</h4><p>Every piece matches what your audience is searching for.</p></div><div class="sp__box"><h4>E-E-A-T Optimized</h4><p>Content demonstrating Experience, Expertise, Authority, and Trust.</p></div><div class="sp__box"><h4>Conversion Focused</h4><p>Content that guides readers through your funnel toward action.</p></div><div class="sp__box"><h4>Evergreen &amp; Scalable</h4><p>Content that compounds in value over time.</p></div></div></div>
-  <div class="sp__cta"><h3>Content That Converts</h3><p>Let's build a content strategy that positions you as the go-to authority.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Content%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Content%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Content That Converts</h3><p>Let's build a content strategy that positions you as the go-to authority.</p><div class="sp__cta-btns"><a id="sp-cm-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Content%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-cm-email" href="mailto:sudais@example.com?subject=Content%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <div class="service-page" id="sp-email-marketing">
@@ -763,373 +763,532 @@
   <div class="sp__hero"><span class="sp__icon">📧</span><h1 class="sp__title">Email Marketing</h1><p class="sp__sub">Build, nurture, and monetize your email list with strategic automation that generates revenue on autopilot.</p></div>
   <div class="sp__section"><h3>What I Build</h3><ul class="sp__list"><li>Welcome sequences that make powerful first impressions</li><li>Lead nurturing drip campaigns</li><li>Abandoned cart recovery sequences</li><li>Win-back campaigns for inactive subscribers</li><li>Weekly/monthly newsletters</li><li>Product launch email sequences</li><li>Segmentation strategies for personalized messaging</li><li>A/B testing of subject lines and CTAs</li></ul></div>
   <div class="sp__section"><h3>Why Email Dominates</h3><div class="sp__grid"><div class="sp__box"><h4>Highest ROI</h4><p>Email marketing delivers an average ROI of $36 for every $1 spent.</p></div><div class="sp__box"><h4>Owned Audience</h4><p>Unlike social media, you own your email list. No algorithm can touch it.</p></div><div class="sp__box"><h4>Automation</h4><p>Set up once and earn continuously. Works for you 24/7.</p></div><div class="sp__box"><h4>Deep Personalization</h4><p>Hyper-relevant messages that drive higher open and click rates.</p></div></div></div>
-  <div class="sp__cta"><h3>Unlock the Power of Email</h3><p>Let's turn your email list into a reliable revenue engine.</p><div class="sp__cta-btns"><a href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Email%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a href="mailto:sudais@example.com?subject=Email%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
+  <div class="sp__cta"><h3>Unlock the Power of Email</h3><p>Let's turn your email list into a reliable revenue engine.</p><div class="sp__cta-btns"><a id="sp-em-wa" href="https://wa.me/923001234567?text=Hi%20Sudais!%20I'm%20interested%20in%20Email%20Marketing%20services." target="_blank" class="btn--wa">💬 WhatsApp Me</a><a id="sp-em-email" href="mailto:sudais@example.com?subject=Email%20Marketing%20Inquiry" class="btn--email">✉️ Send Email</a></div></div>
 </div>
 
 <script>
-  // ===== CURSOR =====
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursor-ring');
-  document.addEventListener('mousemove', e => {
-    cursor.style.transform = `translate(${e.clientX - 5}px, ${e.clientY - 5}px)`;
-    ring.style.transform = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
-  });
+// ============================================================
+// ===== localStorage KEY =====
+// ============================================================
+const STORAGE_KEY = 'sudais_portfolio_data';
 
-  // ===== NAV SCROLL =====
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 40); });
+// Default data
+const DEFAULTS = {
+  name: 'Sudais',
+  email: 'sudais@example.com',
+  phone: '+92 300 1234567',
+  location: 'Pakistan',
+  username: 'sudais',
+  password: 'munara01',
+  siteTitle: 'Sudais | Digital Marketer & Guest Poster',
+  tagline: 'Crafting Digital Narratives That Convert',
+  fbUrl: 'https://facebook.com/',
+  liUrl: 'https://linkedin.com/',
+  twUrl: 'https://twitter.com/',
+  waNum: '+923001234567',
+  photo: null
+};
 
-  // ===== HAMBURGER =====
-  const hamburger = document.getElementById('hamburger');
-  const navMenu = document.getElementById('nav-menu');
-  hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); navMenu.classList.toggle('open'); });
-  navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { hamburger.classList.remove('open'); navMenu.classList.remove('open'); }));
+// Load saved data from localStorage (merges with defaults)
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return Object.assign({}, DEFAULTS);
+    return Object.assign({}, DEFAULTS, JSON.parse(raw));
+  } catch(e) { return Object.assign({}, DEFAULTS); }
+}
 
-  // ===== INTERSECTION OBSERVER =====
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => { if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 100); });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.stat, .about__img-wrap, .about__text, .service__card, .project__card, .testimonial, .process__step, .contact__info, .contact__form-wrap').forEach(el => observer.observe(el));
+// Save data object to localStorage
+function saveData(updates) {
+  try {
+    const current = loadData();
+    const merged = Object.assign(current, updates);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    return merged;
+  } catch(e) { showToast('⚠ Storage error — changes may not persist'); return null; }
+}
 
-  // ===== COUNTER =====
-  const counters = document.querySelectorAll('.stat__num[data-count]');
-  const countObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target, target = +el.dataset.count;
-        let current = 0; const step = target / 50;
-        const timer = setInterval(() => { current += step; if (current >= target) { current = target; clearInterval(timer); } el.textContent = Math.floor(current) + '+'; }, 30);
-        countObserver.unobserve(el);
-      }
-    });
-  }, { threshold: 0.5 });
-  counters.forEach(c => countObserver.observe(c));
+// ============================================================
+// ===== APPLY SAVED DATA ON PAGE LOAD =====
+// ============================================================
+function applyAllSavedData() {
+  const d = loadData();
 
-  // ===== SERVICE PAGES =====
-  function openService(id) { const page = document.getElementById('sp-' + id); if (page) { page.classList.add('open'); document.body.style.overflow = 'hidden'; page.scrollTop = 0; } }
-  function closeService(id) { const page = document.getElementById('sp-' + id); if (page) { page.classList.remove('open'); document.body.style.overflow = ''; } }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.service-page.open').forEach(p => { p.classList.remove('open'); document.body.style.overflow = ''; });
-      if (document.getElementById('add-service-modal').style.display === 'flex') closeAddServiceModal();
-    }
-  });
+  // Name
+  document.getElementById('hero-name-highlight').textContent = d.name;
+  document.getElementById('admin-display-name').textContent = d.name;
+  document.getElementById('footer-copy').innerHTML = `&copy; 2025 ${d.name}. Built with passion. All rights reserved.`;
 
-  // ===== ADMIN ANIMATED BACKGROUND =====
-  (function buildAdminBg() {
-    const bg = document.getElementById('adminBg');
-    const words = ['SEO','GROWTH','TRAFFIC','CONTENT','LINKS','BRAND','LEADS','CLICKS','RANK','ROI','DIGITAL','MARKET'];
-    words.forEach((w, i) => {
-      const el = document.createElement('div'); el.className = 'admin-bg__word'; el.textContent = w;
-      el.style.left = (8 + i * 8) + '%'; el.style.fontSize = (60 + Math.random()*80) + 'px';
-      el.style.animationDuration = (18 + Math.random()*14) + 's'; el.style.animationDelay = (i * 1.5) + 's';
-      bg.appendChild(el);
-    });
-    [200,340,480,150,260].forEach((size, i) => {
-      const c = document.createElement('div'); c.className = 'admin-bg__circle';
-      c.style.cssText = `width:${size}px;height:${size}px;top:${10+i*16}%;left:${5+i*20}%;animation-duration:${5+i*1.5}s;animation-delay:${i*0.8}s;`;
-      bg.appendChild(c);
-    });
-    const icons = ['📈','✍️','🔍','📱','📝','📧','⭐','🎯','📊','🚀'];
-    icons.forEach((ic, i) => {
-      const el = document.createElement('div'); el.className = 'admin-bg__img';
-      const size = 60 + Math.random()*40;
-      el.style.cssText = `width:${size}px;height:${size}px;top:${5+i*9}%;right:${3+i*4}%;border-radius:8px;font-size:${size*0.45}px;animation-duration:${5+Math.random()*4}s;animation-delay:${i*0.7}s;`;
-      el.textContent = ic; bg.appendChild(el);
-    });
-    [30,55,75].forEach((top, i) => {
-      const l = document.createElement('div'); l.className = 'admin-bg__line';
-      l.style.cssText = `top:${top}%;width:60%;left:20%;animation-duration:${8+i*3}s;animation-delay:${i*2}s;`;
-      bg.appendChild(l);
-    });
-    '0123456789'.split('').forEach((d, i) => {
-      const el = document.createElement('div'); el.className = 'admin-bg__digit'; el.textContent = d;
-      el.style.cssText = `font-size:${80+Math.random()*60}px;top:${Math.random()*80}%;left:${Math.random()*80}%;animation-duration:${4+Math.random()*5}s;animation-delay:${i*0.6}s;`;
-      bg.appendChild(el);
-    });
-  })();
+  // Email
+  document.getElementById('contact-email-link').href = 'mailto:' + d.email;
+  document.getElementById('contact-email-text').textContent = d.email;
 
-  // ===== TYPING ANIMATION =====
-  (function typeHeader() {
-    const el = document.getElementById('adminTyping');
-    const phrases = ['Admin Dashboard', 'Manage Everything', 'Your Command Center', 'Control & Grow'];
-    let pi = 0, ci = 0, deleting = false;
-    const cur = document.createElement('span'); cur.className = 'typing-cursor';
-    function type() {
-      const phrase = phrases[pi];
-      if (!deleting) { el.textContent = phrase.slice(0, ci + 1); el.appendChild(cur); ci++; if (ci === phrase.length) { deleting = true; setTimeout(type, 2200); return; } }
-      else { el.textContent = phrase.slice(0, ci - 1); el.appendChild(cur); ci--; if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(type, 400); return; } }
-      setTimeout(type, deleting ? 60 : 90);
-    }
-    type();
-  })();
+  // Phone / WhatsApp
+  const waNum = d.waNum.replace(/[\s\+\-\(\)]/g, '');
+  const waHref = 'https://wa.me/' + waNum;
+  document.getElementById('contact-wa-link').href = waHref;
+  document.getElementById('contact-wa-text').textContent = 'WhatsApp: ' + d.phone;
+  document.getElementById('footer-wa').href = waHref;
 
-  // ===== ADMIN CREDENTIALS (changeable) =====
-  let adminCredentials = { username: 'sudais', password: 'munara01' };
+  // Tagline
+  document.getElementById('about-tagline').textContent = d.tagline;
 
-  // ===== ADMIN LOGIN =====
-  function adminLogin() {
-    const u = document.getElementById('admin-user').value.trim();
-    const p = document.getElementById('admin-pass').value;
-    const err = document.getElementById('admin-error');
-    if (u === adminCredentials.username && p === adminCredentials.password) {
-      document.getElementById('admin-login').style.display = 'none';
-      const dash = document.getElementById('admin-dashboard');
-      dash.classList.add('show');
-      animateAdminStats();
-      updateAdminTime();
-      setInterval(updateAdminTime, 1000);
-    } else {
-      err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
-      document.getElementById('admin-pass').value = '';
-    }
+  // Site title
+  document.title = d.siteTitle;
+
+  // Social links
+  document.getElementById('contact-fb-link').href = d.fbUrl;
+  document.getElementById('footer-fb').href = d.fbUrl;
+  document.getElementById('contact-li-link').href = d.liUrl;
+  document.getElementById('footer-li').href = d.liUrl;
+  document.getElementById('contact-tw-link').href = d.twUrl;
+  document.getElementById('footer-tw').href = d.twUrl;
+
+  // Service page links (WA + email)
+  updateServicePageLinks(d);
+
+  // Admin form fields — populate with saved values
+  document.getElementById('pf-name').value = d.name;
+  document.getElementById('pf-email').value = d.email;
+  document.getElementById('pf-phone').value = d.phone;
+  document.getElementById('pf-location').value = d.location;
+  document.getElementById('pf-username').value = d.username;
+  document.getElementById('pf-cur-pass').value = d.password;
+  document.getElementById('pf-site-title').value = d.siteTitle;
+  document.getElementById('pf-tagline').value = d.tagline;
+  document.getElementById('pf-fb').value = d.fbUrl;
+  document.getElementById('pf-li').value = d.liUrl;
+  document.getElementById('pf-tw').value = d.twUrl;
+  document.getElementById('pf-wa').value = d.waNum;
+
+  // Credentials (runtime variable)
+  adminCredentials.username = d.username;
+  adminCredentials.password = d.password;
+
+  // Photo
+  if (d.photo) {
+    applyPhotoToAbout(d.photo);
+    syncPhotoToAdminTab(d.photo);
   }
-  document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
-  document.getElementById('admin-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('admin-pass').focus(); });
+}
 
-  function adminLogout() {
-    document.getElementById('admin-dashboard').classList.remove('show');
-    document.getElementById('admin-login').style.display = 'flex';
-    document.getElementById('admin-user').value = '';
+function updateServicePageLinks(d) {
+  const waNum = d.waNum.replace(/[\s\+\-\(\)]/g, '');
+  const email = d.email;
+  const services = [
+    { id: 'dm', label: 'Digital%20Marketing' },
+    { id: 'gp', label: 'Guest%20Posting' },
+    { id: 'seo', label: 'SEO%20Services' },
+    { id: 'sm', label: 'Social%20Media%20Marketing' },
+    { id: 'cm', label: 'Content%20Marketing' },
+    { id: 'em', label: 'Email%20Marketing' }
+  ];
+  services.forEach(s => {
+    const waEl = document.getElementById('sp-' + s.id + '-wa');
+    const emailEl = document.getElementById('sp-' + s.id + '-email');
+    if (waEl) waEl.href = `https://wa.me/${waNum}?text=Hi%20${encodeURIComponent(d.name)}!%20I'm%20interested%20in%20${s.label}%20services.`;
+    if (emailEl) emailEl.href = `mailto:${email}?subject=${s.label}%20Inquiry`;
+  });
+}
+
+// ============================================================
+// ===== CURSOR =====
+// ============================================================
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+document.addEventListener('mousemove', e => {
+  cursor.style.transform = `translate(${e.clientX - 5}px, ${e.clientY - 5}px)`;
+  ring.style.transform = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
+});
+
+// ===== NAV SCROLL =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 40); });
+
+// ===== HAMBURGER =====
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('nav-menu');
+hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); navMenu.classList.toggle('open'); });
+navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { hamburger.classList.remove('open'); navMenu.classList.remove('open'); }));
+
+// ===== INTERSECTION OBSERVER =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => { if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 100); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.stat, .about__img-wrap, .about__text, .service__card, .project__card, .testimonial, .process__step, .contact__info, .contact__form-wrap').forEach(el => observer.observe(el));
+
+// ===== COUNTER =====
+const counters = document.querySelectorAll('.stat__num[data-count]');
+const countObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target, target = +el.dataset.count;
+      let current = 0; const step = target / 50;
+      const timer = setInterval(() => { current += step; if (current >= target) { current = target; clearInterval(timer); } el.textContent = Math.floor(current) + '+'; }, 30);
+      countObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => countObserver.observe(c));
+
+// ===== SERVICE PAGES =====
+function openService(id) { const page = document.getElementById('sp-' + id); if (page) { page.classList.add('open'); document.body.style.overflow = 'hidden'; page.scrollTop = 0; } }
+function closeService(id) { const page = document.getElementById('sp-' + id); if (page) { page.classList.remove('open'); document.body.style.overflow = ''; } }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.service-page.open').forEach(p => { p.classList.remove('open'); document.body.style.overflow = ''; });
+    if (document.getElementById('add-service-modal').style.display === 'flex') closeAddServiceModal();
+  }
+});
+
+// ===== ADMIN ANIMATED BACKGROUND =====
+(function buildAdminBg() {
+  const bg = document.getElementById('adminBg');
+  const words = ['SEO','GROWTH','TRAFFIC','CONTENT','LINKS','BRAND','LEADS','CLICKS','RANK','ROI','DIGITAL','MARKET'];
+  words.forEach((w, i) => {
+    const el = document.createElement('div'); el.className = 'admin-bg__word'; el.textContent = w;
+    el.style.left = (8 + i * 8) + '%'; el.style.fontSize = (60 + Math.random()*80) + 'px';
+    el.style.animationDuration = (18 + Math.random()*14) + 's'; el.style.animationDelay = (i * 1.5) + 's';
+    bg.appendChild(el);
+  });
+  [200,340,480,150,260].forEach((size, i) => {
+    const c = document.createElement('div'); c.className = 'admin-bg__circle';
+    c.style.cssText = `width:${size}px;height:${size}px;top:${10+i*16}%;left:${5+i*20}%;animation-duration:${5+i*1.5}s;animation-delay:${i*0.8}s;`;
+    bg.appendChild(c);
+  });
+  const icons = ['📈','✍️','🔍','📱','📝','📧','⭐','🎯','📊','🚀'];
+  icons.forEach((ic, i) => {
+    const el = document.createElement('div'); el.className = 'admin-bg__img';
+    const size = 60 + Math.random()*40;
+    el.style.cssText = `width:${size}px;height:${size}px;top:${5+i*9}%;right:${3+i*4}%;border-radius:8px;font-size:${size*0.45}px;animation-duration:${5+Math.random()*4}s;animation-delay:${i*0.7}s;`;
+    el.textContent = ic; bg.appendChild(el);
+  });
+  [30,55,75].forEach((top, i) => {
+    const l = document.createElement('div'); l.className = 'admin-bg__line';
+    l.style.cssText = `top:${top}%;width:60%;left:20%;animation-duration:${8+i*3}s;animation-delay:${i*2}s;`;
+    bg.appendChild(l);
+  });
+  '0123456789'.split('').forEach((d, i) => {
+    const el = document.createElement('div'); el.className = 'admin-bg__digit'; el.textContent = d;
+    el.style.cssText = `font-size:${80+Math.random()*60}px;top:${Math.random()*80}%;left:${Math.random()*80}%;animation-duration:${4+Math.random()*5}s;animation-delay:${i*0.6}s;`;
+    bg.appendChild(el);
+  });
+})();
+
+// ===== TYPING ANIMATION =====
+(function typeHeader() {
+  const el = document.getElementById('adminTyping');
+  const phrases = ['Admin Dashboard', 'Manage Everything', 'Your Command Center', 'Control & Grow'];
+  let pi = 0, ci = 0, deleting = false;
+  const cur = document.createElement('span'); cur.className = 'typing-cursor';
+  function type() {
+    const phrase = phrases[pi];
+    if (!deleting) { el.textContent = phrase.slice(0, ci + 1); el.appendChild(cur); ci++; if (ci === phrase.length) { deleting = true; setTimeout(type, 2200); return; } }
+    else { el.textContent = phrase.slice(0, ci - 1); el.appendChild(cur); ci--; if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(type, 400); return; } }
+    setTimeout(type, deleting ? 60 : 90);
+  }
+  type();
+})();
+
+// ============================================================
+// ===== ADMIN CREDENTIALS (runtime, loaded from storage) =====
+// ============================================================
+let adminCredentials = { username: DEFAULTS.username, password: DEFAULTS.password };
+
+// ============================================================
+// ===== ADMIN LOGIN =====
+// ============================================================
+function adminLogin() {
+  const u = document.getElementById('admin-user').value.trim();
+  const p = document.getElementById('admin-pass').value;
+  const err = document.getElementById('admin-error');
+  if (u === adminCredentials.username && p === adminCredentials.password) {
+    document.getElementById('admin-login').style.display = 'none';
+    const dash = document.getElementById('admin-dashboard');
+    dash.classList.add('show');
+    animateAdminStats();
+    updateAdminTime();
+    setInterval(updateAdminTime, 1000);
+  } else {
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
     document.getElementById('admin-pass').value = '';
-    document.getElementById('admin-error').classList.remove('show');
   }
+}
+document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+document.getElementById('admin-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('admin-pass').focus(); });
 
-  function updateAdminTime() {
-    const now = new Date();
-    document.getElementById('admin-time').textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }
+function adminLogout() {
+  document.getElementById('admin-dashboard').classList.remove('show');
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('admin-user').value = '';
+  document.getElementById('admin-pass').value = '';
+  document.getElementById('admin-error').classList.remove('show');
+}
 
-  function animateAdminStats() {
-    const stats = document.querySelectorAll('.admin-stat-card');
-    stats.forEach((s, i) => setTimeout(() => s.classList.add('anim'), i * 120));
-    const targets = [24, 4820, 8, 5.0];
-    const ids = ['sc1','sc2','sc3','sc4'];
-    ids.forEach((id, i) => {
-      const el = document.getElementById(id); let cur = 0; const t = targets[i]; const step = t / 60;
-      const timer = setInterval(() => { cur += step; if (cur >= t) { cur = t; clearInterval(timer); } el.textContent = (id === 'sc4') ? t.toFixed(1) + '★' : Math.floor(cur); }, 25);
+function updateAdminTime() {
+  const now = new Date();
+  document.getElementById('admin-time').textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function animateAdminStats() {
+  const stats = document.querySelectorAll('.admin-stat-card');
+  stats.forEach((s, i) => setTimeout(() => s.classList.add('anim'), i * 120));
+  const targets = [24, 4820, 8, 5.0];
+  const ids = ['sc1','sc2','sc3','sc4'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id); let cur = 0; const t = targets[i]; const step = t / 60;
+    const timer = setInterval(() => { cur += step; if (cur >= t) { cur = t; clearInterval(timer); } el.textContent = (id === 'sc4') ? t.toFixed(1) + '★' : Math.floor(cur); }, 25);
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.traffic-fill').forEach(fill => {
+      const w = parseFloat(fill.style.getPropertyValue('--w'));
+      fill.style.transform = `scaleX(${w})`; fill.classList.add('anim');
     });
-    setTimeout(() => {
-      document.querySelectorAll('.traffic-fill').forEach(fill => {
-        const w = parseFloat(fill.style.getPropertyValue('--w'));
-        fill.style.transform = `scaleX(${w})`; fill.classList.add('anim');
-      });
-    }, 600);
+  }, 600);
+}
+
+// ===== TABS =====
+function switchTab(name, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'analytics') {
+    setTimeout(() => { document.querySelectorAll('.traffic-fill').forEach(fill => { const w = parseFloat(fill.style.getPropertyValue('--w')); fill.style.transform = `scaleX(${w})`; }); }, 100);
   }
+}
 
-  // ===== TABS =====
-  function switchTab(name, btn) {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + name).classList.add('active');
-    if (name === 'analytics') {
-      setTimeout(() => { document.querySelectorAll('.traffic-fill').forEach(fill => { const w = parseFloat(fill.style.getPropertyValue('--w')); fill.style.transform = `scaleX(${w})`; }); }, 100);
-    }
+// ===== SERVICE TOGGLES =====
+function toggleService(btn) {
+  btn.classList.toggle('off');
+  const name = btn.closest('.admin-service-item').querySelector('.asi__name').textContent;
+  const on = !btn.classList.contains('off');
+  showToast((on ? '✓ ' : '⏸ ') + name + (on ? ' enabled' : ' disabled'));
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+// ===== ADD SERVICE MODAL =====
+function openAddServiceModal() { const modal = document.getElementById('add-service-modal'); modal.style.display = 'flex'; document.getElementById('new-svc-icon').value = ''; document.getElementById('new-svc-name').value = ''; document.getElementById('new-svc-desc').value = ''; setTimeout(() => document.getElementById('new-svc-icon').focus(), 100); }
+function closeAddServiceModal() { document.getElementById('add-service-modal').style.display = 'none'; }
+function addNewService() {
+  const icon = document.getElementById('new-svc-icon').value.trim() || '🆕';
+  const name = document.getElementById('new-svc-name').value.trim();
+  const desc = document.getElementById('new-svc-desc').value.trim();
+  if (!name) { showToast('⚠ Please enter a service name'); return; }
+  const grid = document.querySelector('.admin-services-grid');
+  const item = document.createElement('div'); item.className = 'admin-service-item'; item.style.animation = 'fadeUp 0.4s ease both';
+  item.innerHTML = `<div class="asi__top"><span class="asi__icon">${icon}</span><button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button></div><div class="asi__name">${name}</div><div class="asi__stats">${desc || 'No description provided.'}</div>`;
+  grid.appendChild(item); closeAddServiceModal(); showToast('✓ "' + name + '" service added!');
+}
+document.getElementById('add-service-modal').addEventListener('click', function(e) { if (e.target === this) closeAddServiceModal(); });
+
+// ============================================================
+// ===== SAVE CHANGES — PERSISTENT via localStorage =====
+// ============================================================
+
+function savePersonalInfo() {
+  const name = document.getElementById('pf-name').value.trim();
+  const email = document.getElementById('pf-email').value.trim();
+  const phone = document.getElementById('pf-phone').value.trim();
+  const location = document.getElementById('pf-location').value.trim();
+
+  const updates = {};
+  if (name) updates.name = name;
+  if (email) updates.email = email;
+  if (phone) updates.phone = phone;
+  if (location) updates.location = location;
+
+  saveData(updates);
+
+  // Apply to live site immediately
+  if (name) {
+    document.getElementById('hero-name-highlight').textContent = name;
+    document.getElementById('admin-display-name').textContent = name;
+    document.getElementById('footer-copy').innerHTML = `&copy; 2025 ${name}. Built with passion. All rights reserved.`;
   }
-
-  // ===== SERVICE TOGGLES =====
-  function toggleService(btn) {
-    btn.classList.toggle('off');
-    const name = btn.closest('.admin-service-item').querySelector('.asi__name').textContent;
-    const on = !btn.classList.contains('off');
-    showToast((on ? '✓ ' : '⏸ ') + name + (on ? ' enabled' : ' disabled'));
+  if (email) {
+    document.getElementById('contact-email-link').href = 'mailto:' + email;
+    document.getElementById('contact-email-text').textContent = email;
   }
-
-  // ===== TOAST =====
-  function showToast(msg) {
-    const t = document.getElementById('admin-toast');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 2800);
+  if (phone) {
+    const d = loadData();
+    const waNum = d.waNum.replace(/[\s\+\-\(\)]/g, '');
+    const waHref = 'https://wa.me/' + waNum;
+    document.getElementById('contact-wa-link').href = waHref;
+    document.getElementById('contact-wa-text').textContent = 'WhatsApp: ' + phone;
+    document.getElementById('footer-wa').href = waHref;
   }
+  // Update service page links too
+  updateServicePageLinks(loadData());
+  showToast('✓ Personal info saved permanently!');
+}
 
-  // ===== ADD SERVICE MODAL =====
-  function openAddServiceModal() { const modal = document.getElementById('add-service-modal'); modal.style.display = 'flex'; document.getElementById('new-svc-icon').value = ''; document.getElementById('new-svc-name').value = ''; document.getElementById('new-svc-desc').value = ''; setTimeout(() => document.getElementById('new-svc-icon').focus(), 100); }
-  function closeAddServiceModal() { document.getElementById('add-service-modal').style.display = 'none'; }
-  function addNewService() {
-    const icon = document.getElementById('new-svc-icon').value.trim() || '🆕';
-    const name = document.getElementById('new-svc-name').value.trim();
-    const desc = document.getElementById('new-svc-desc').value.trim();
-    if (!name) { showToast('⚠ Please enter a service name'); return; }
-    const grid = document.querySelector('.admin-services-grid');
-    const item = document.createElement('div'); item.className = 'admin-service-item'; item.style.animation = 'fadeUp 0.4s ease both';
-    item.innerHTML = `<div class="asi__top"><span class="asi__icon">${icon}</span><button class="asi__toggle" onclick="toggleService(this)" title="Toggle Service"></button></div><div class="asi__name">${name}</div><div class="asi__stats">${desc || 'No description provided.'}</div>`;
-    grid.appendChild(item); closeAddServiceModal(); showToast('✓ "' + name + '" service added!');
+function savePassword() {
+  const curPass = document.getElementById('pf-cur-pass').value;
+  const newPass = document.getElementById('pf-new-pass').value;
+  const conPass = document.getElementById('pf-con-pass').value;
+  const username = document.getElementById('pf-username').value.trim();
+
+  if (curPass !== adminCredentials.password) { showToast('⚠ Current password is incorrect'); return; }
+  if (!newPass) { showToast('⚠ Please enter a new password'); return; }
+  if (newPass !== conPass) { showToast('⚠ Passwords do not match'); return; }
+  if (newPass.length < 4) { showToast('⚠ Password must be at least 4 characters'); return; }
+
+  // Update runtime + storage
+  adminCredentials.password = newPass;
+  if (username) adminCredentials.username = username;
+
+  saveData({
+    password: newPass,
+    username: username || adminCredentials.username
+  });
+
+  document.getElementById('pf-cur-pass').value = newPass;
+  document.getElementById('pf-new-pass').value = '';
+  document.getElementById('pf-con-pass').value = '';
+  showToast('✓ Password updated & saved permanently!');
+}
+
+function saveSettings() {
+  const siteTitle = document.getElementById('pf-site-title').value.trim();
+  const tagline = document.getElementById('pf-tagline').value.trim();
+  const fbUrl = document.getElementById('pf-fb').value.trim();
+  const liUrl = document.getElementById('pf-li').value.trim();
+  const twUrl = document.getElementById('pf-tw').value.trim();
+  const waNum = document.getElementById('pf-wa').value.trim();
+
+  const updates = {};
+  if (siteTitle) updates.siteTitle = siteTitle;
+  if (tagline) updates.tagline = tagline;
+  if (fbUrl) updates.fbUrl = fbUrl;
+  if (liUrl) updates.liUrl = liUrl;
+  if (twUrl) updates.twUrl = twUrl;
+  if (waNum) updates.waNum = waNum;
+
+  saveData(updates);
+
+  // Apply live
+  if (siteTitle) document.title = siteTitle;
+  if (tagline) document.getElementById('about-tagline').textContent = tagline;
+  if (fbUrl) { document.getElementById('contact-fb-link').href = fbUrl; document.getElementById('footer-fb').href = fbUrl; }
+  if (liUrl) { document.getElementById('contact-li-link').href = liUrl; document.getElementById('footer-li').href = liUrl; }
+  if (twUrl) { document.getElementById('contact-tw-link').href = twUrl; document.getElementById('footer-tw').href = twUrl; }
+  if (waNum) {
+    const cleanNum = waNum.replace(/[\s\+\-\(\)]/g, '');
+    const waHref = 'https://wa.me/' + cleanNum;
+    document.getElementById('contact-wa-link').href = waHref;
+    document.getElementById('footer-wa').href = waHref;
   }
-  document.getElementById('add-service-modal').addEventListener('click', function(e) { if (e.target === this) closeAddServiceModal(); });
+  updateServicePageLinks(loadData());
+  showToast('✓ Settings saved permanently!');
+}
 
-  // ===================================================
-  // ===== SAVE CHANGES — APPLIES TO LIVE SITE =========
-  // ===================================================
+// ============================================================
+// ===== PHOTO UPLOAD — now persisted in localStorage =====
+// ============================================================
 
-  function savePersonalInfo() {
-    const name = document.getElementById('pf-name').value.trim();
-    const email = document.getElementById('pf-email').value.trim();
-    const phone = document.getElementById('pf-phone').value.trim();
+let uploadedPhotoDataUrl = null;
 
-    if (name) {
-      // Update hero name
-      document.getElementById('hero-name-highlight').textContent = name;
-      // Update admin display name
-      document.getElementById('admin-display-name').textContent = name;
-      // Update footer
-      document.getElementById('footer-copy').innerHTML = `&copy; 2025 ${name}. Built with passion. All rights reserved.`;
-    }
-    if (email) {
-      // Update contact section email link
-      document.getElementById('contact-email-link').href = 'mailto:' + email;
-      document.getElementById('contact-email-text').textContent = email;
-    }
-    if (phone) {
-      // Clean number for WhatsApp link (remove spaces, +, dashes)
-      const waNum = phone.replace(/[\s\+\-\(\)]/g, '');
-      document.getElementById('contact-wa-link').href = 'https://wa.me/' + waNum;
-      document.getElementById('contact-wa-text').textContent = 'WhatsApp: ' + phone;
-      document.getElementById('footer-wa').href = 'https://wa.me/' + waNum;
-    }
-    showToast('✓ Personal info saved & applied to site!');
-  }
-
-  function savePassword() {
-    const curPass = document.getElementById('pf-cur-pass').value;
-    const newPass = document.getElementById('pf-new-pass').value;
-    const conPass = document.getElementById('pf-con-pass').value;
-    const username = document.getElementById('pf-username').value.trim();
-
-    if (curPass !== adminCredentials.password) { showToast('⚠ Current password is incorrect'); return; }
-    if (!newPass) { showToast('⚠ Please enter a new password'); return; }
-    if (newPass !== conPass) { showToast('⚠ Passwords do not match'); return; }
-    if (newPass.length < 4) { showToast('⚠ Password must be at least 4 characters'); return; }
-
-    adminCredentials.password = newPass;
-    if (username) adminCredentials.username = username;
-    document.getElementById('pf-cur-pass').value = newPass;
-    document.getElementById('pf-new-pass').value = '';
-    document.getElementById('pf-con-pass').value = '';
-    showToast('✓ Password updated successfully!');
-  }
-
-  function saveSettings() {
-    const siteTitle = document.getElementById('pf-site-title').value.trim();
-    const tagline = document.getElementById('pf-tagline').value.trim();
-    const fbUrl = document.getElementById('pf-fb').value.trim();
-    const liUrl = document.getElementById('pf-li').value.trim();
-    const twUrl = document.getElementById('pf-tw').value.trim();
-    const waNum = document.getElementById('pf-wa').value.trim().replace(/[\s\+\-\(\)]/g, '');
-
-    if (siteTitle) document.title = siteTitle;
-    if (tagline) {
-      document.getElementById('about-tagline').textContent = tagline;
-    }
-    if (fbUrl) {
-      document.getElementById('contact-fb-link').href = fbUrl;
-      document.getElementById('footer-fb').href = fbUrl;
-    }
-    if (liUrl) {
-      document.getElementById('contact-li-link').href = liUrl;
-      document.getElementById('footer-li').href = liUrl;
-    }
-    if (twUrl) {
-      document.getElementById('contact-tw-link').href = twUrl;
-      document.getElementById('footer-tw').href = twUrl;
-    }
-    if (waNum) {
-      const waHref = 'https://wa.me/' + waNum;
-      document.getElementById('contact-wa-link').href = waHref;
-      document.getElementById('footer-wa').href = waHref;
-    }
-    showToast('✓ Settings saved & applied to site!');
-  }
-
-  // ===================================================
-  // ===== PHOTO UPLOAD =================================
-  // ===================================================
-
-  // Shared state for uploaded photo
-  let uploadedPhotoDataUrl = null;
-
-  // Handle photo upload from the About section overlay
-  function handlePhotoUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      uploadedPhotoDataUrl = e.target.result;
-      applyPhotoToAbout(uploadedPhotoDataUrl);
-      // Also sync to the admin photo tab
-      syncPhotoToAdminTab(uploadedPhotoDataUrl);
-      showToast('✓ Photo uploaded! Looking great.');
-    };
-    reader.readAsDataURL(file);
-    // Reset input so same file can be re-selected
-    event.target.value = '';
-  }
-
-  // Handle photo upload from Admin > Photo tab
-  function handlePhotoTabUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      uploadedPhotoDataUrl = e.target.result;
-      // Show preview in tab
-      document.getElementById('photo-tab-preview').src = uploadedPhotoDataUrl;
-      document.getElementById('photo-tab-preview').style.display = 'block';
-      document.getElementById('photo-tab-placeholder').style.display = 'none';
-      // Enable publish button
-      const btn = document.getElementById('publish-photo-btn');
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-      document.getElementById('photo-published-msg').style.display = 'none';
-      showToast('✓ Photo ready. Click "Publish Photo" to apply.');
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
-  }
-
-  function publishPhoto() {
-    if (!uploadedPhotoDataUrl) return;
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedPhotoDataUrl = e.target.result;
     applyPhotoToAbout(uploadedPhotoDataUrl);
-    document.getElementById('photo-published-msg').style.display = 'block';
-    document.getElementById('remove-photo-btn').style.display = 'block';
-    showToast('✓ Photo published to About section!');
-  }
+    syncPhotoToAdminTab(uploadedPhotoDataUrl);
+    // Save photo persistently
+    saveData({ photo: uploadedPhotoDataUrl });
+    showToast('✓ Photo uploaded & saved permanently!');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
 
-  function applyPhotoToAbout(dataUrl) {
-    const img = document.getElementById('about-photo');
-    const placeholder = document.getElementById('about-placeholder');
-    img.src = dataUrl;
-    img.classList.add('active');
-    placeholder.style.display = 'none';
-    document.getElementById('remove-photo-btn').style.display = 'block';
-  }
-
-  function syncPhotoToAdminTab(dataUrl) {
-    document.getElementById('photo-tab-preview').src = dataUrl;
+function handlePhotoTabUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedPhotoDataUrl = e.target.result;
+    document.getElementById('photo-tab-preview').src = uploadedPhotoDataUrl;
     document.getElementById('photo-tab-preview').style.display = 'block';
     document.getElementById('photo-tab-placeholder').style.display = 'none';
     const btn = document.getElementById('publish-photo-btn');
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
-    document.getElementById('photo-published-msg').style.display = 'block';
-    document.getElementById('remove-photo-btn').style.display = 'block';
-  }
-
-  function removePhoto() {
-    uploadedPhotoDataUrl = null;
-    const img = document.getElementById('about-photo');
-    img.src = ''; img.classList.remove('active');
-    document.getElementById('about-placeholder').style.display = '';
-    // Reset tab
-    document.getElementById('photo-tab-preview').src = '';
-    document.getElementById('photo-tab-preview').style.display = 'none';
-    document.getElementById('photo-tab-placeholder').style.display = '';
     document.getElementById('photo-published-msg').style.display = 'none';
-    document.getElementById('remove-photo-btn').style.display = 'none';
-    const btn = document.getElementById('publish-photo-btn');
-    btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed';
-    showToast('✓ Photo removed');
-  }
+    showToast('✓ Photo ready. Click "Publish Photo" to apply.');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function publishPhoto() {
+  if (!uploadedPhotoDataUrl) return;
+  applyPhotoToAbout(uploadedPhotoDataUrl);
+  // Save permanently
+  saveData({ photo: uploadedPhotoDataUrl });
+  document.getElementById('photo-published-msg').style.display = 'block';
+  document.getElementById('remove-photo-btn').style.display = 'block';
+  showToast('✓ Photo published & saved permanently!');
+}
+
+function applyPhotoToAbout(dataUrl) {
+  const img = document.getElementById('about-photo');
+  const placeholder = document.getElementById('about-placeholder');
+  img.src = dataUrl;
+  img.classList.add('active');
+  placeholder.style.display = 'none';
+  document.getElementById('remove-photo-btn').style.display = 'block';
+}
+
+function syncPhotoToAdminTab(dataUrl) {
+  document.getElementById('photo-tab-preview').src = dataUrl;
+  document.getElementById('photo-tab-preview').style.display = 'block';
+  document.getElementById('photo-tab-placeholder').style.display = 'none';
+  const btn = document.getElementById('publish-photo-btn');
+  btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+  document.getElementById('photo-published-msg').style.display = 'block';
+  document.getElementById('remove-photo-btn').style.display = 'block';
+}
+
+function removePhoto() {
+  uploadedPhotoDataUrl = null;
+  // Remove from storage
+  saveData({ photo: null });
+  const img = document.getElementById('about-photo');
+  img.src = ''; img.classList.remove('active');
+  document.getElementById('about-placeholder').style.display = '';
+  document.getElementById('photo-tab-preview').src = '';
+  document.getElementById('photo-tab-preview').style.display = 'none';
+  document.getElementById('photo-tab-placeholder').style.display = '';
+  document.getElementById('photo-published-msg').style.display = 'none';
+  document.getElementById('remove-photo-btn').style.display = 'none';
+  const btn = document.getElementById('publish-photo-btn');
+  btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed';
+  showToast('✓ Photo removed');
+}
+
+// ============================================================
+// ===== RESET ALL DATA =====
+// ============================================================
+function resetAllData() {
+  if (!confirm('Are you sure? This will reset ALL saved changes back to defaults. This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  showToast('✓ All data reset. Reloading...');
+  setTimeout(() => location.reload(), 1200);
+}
+
+// ============================================================
+// ===== INIT — Load saved data on page load =====
+// ============================================================
+applyAllSavedData();
 </script>
 </body>
 </html>
